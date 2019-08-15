@@ -46,7 +46,7 @@ sudo killall -9 pulseaudio
 sudo chmod +x /usr/bin/pulseaudio
 pulseaudio --start  # as normal user
 ```
-Note: Might be easier to just reboot  
+Note: might be easier to just reboot  
 
 
 **Use provided support scripts to switch between the speaker and headphone driver**  
