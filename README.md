@@ -4,11 +4,10 @@ Driver builds successfully on kernels 5.0 to 5.2 (haven't tested eariler kernels
 At this time, only the speakers work with this driver (no wired headphone support)
 In order to use wired headphones, you must switch between this driver and stock kernel driver
 
-**Terminology**
-
+**Terminology** 
 headphones == wired headphones (not bluetooth)
-speaker driver == this driver
-headphone driver == stock kernel driver
+speaker driver == this driver 
+headphone driver == stock kernel driver 
 
 
 Compiling and installing driver:
@@ -59,8 +58,7 @@ Note: Might be easier to just reboot
    Script will toggle driver and will work if active audio streams are present.
    Run as a normal user. Since this script calls script.audio.driver.sh, the normal user running this script must have the necessary sudo rights.
    ie:
-   **/etc/sudoers**
-
+   **/etc/sudoers** 
    youruser ALL=(ALL) NOPASSWD: /usr/local/sbin/switch.audio.driver.sh 
 
    Note: **pulse.switch.audio.sh** works perfectly on Fedora 30. I had trouble getting to work reliably on Ubuntu 19.04.
