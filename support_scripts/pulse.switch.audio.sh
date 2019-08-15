@@ -15,7 +15,7 @@ change_active_sink() {
 alsa_sink=$(pacmd list-sinks | grep alsa | grep name: | cut -d' ' -f2 | sed 's/<//' | sed 's/>//')  #ie alsa_output.hw_0_0
 dummy_sink='mydummysink'
 
-[[ -z $(pacmd list-sinks | grep mydummysink) ]] && pacmd load-module module-null-sink sink_name=mydummysink 
+[[ -z $(pacmd list-sinks | grep mydummysink) ]] && pacmd load-module module-null-sink sink_name=$dummy_sink
 
 change_active_sink $dummy_sink
 $switch_audio_driver
