@@ -1,7 +1,7 @@
 // credits to davidjo for making speakers work on mbp14,3
-// the below is setup for mb9,1
+// below is the setup for mb9,1
 
-//this line only needed for kernel 5.0 and below
+//this line is only needed for kernel 5.0 and below
 #define AC_VERB_GET_STRIPE_CONTROL		0x0f24
 
 static inline unsigned int snd_hda_codec_read_check(struct hda_codec *codec, hda_nid_t nid, int flags, unsigned int verb, unsigned int parm, unsigned int check_val, int srcidx)
