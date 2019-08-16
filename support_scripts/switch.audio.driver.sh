@@ -10,7 +10,7 @@ cirrus_active="$update_dir/snd-hda-codec-cirrus.ko"  				#active module (symlink
 speaker_module_active=$(readlink -f $cirrus_active | grep '_speaker$')
 
 reload_driver() {
-   #symlinks -c $update_dir &> /dev/null 	#uncomment to use relative path links
+   symlinks -c $update_dir &> /dev/null 
    depmod -a
    killall -9 alsactl &> /dev/null
    modprobe -r snd_hda_intel
