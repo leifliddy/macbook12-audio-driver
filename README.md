@@ -55,7 +55,7 @@ Note: might be easier to just reboot
 
 
 2. **pulse.switch.audio.sh** (run as normal user)  
-   Script will also toggle the speaker and headphone driver and will work if active audio streams are present.   
+   Script will also toggle between the speaker and headphone driver and will work if active audio streams are present.   
    Since this script calls **switch.audio.driver.sh**, the normal user running this script must have the necessary sudo rights.  
    ie:  
    **/etc/sudoers**   
