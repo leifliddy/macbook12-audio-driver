@@ -34,7 +34,7 @@ At this point, the speakers should (hopefully) be working. You can stop here if 
 
 Switching between the speaker and headphone drivers:
 -----------
-Things get a bit convulted here....
+Things get a bit convoluted here....
 
 **Edit /etc/pulse/default.pa**  
    With the changes listed in the **pulse_audio_configs/default.pa** file
@@ -50,14 +50,14 @@ Note: might be easier to just reboot
 
 
 **Use provided support scripts to switch between the speaker and headphone driver**  
-1. **switch.audio.driver.sh**  
+1. **switch.audio.driver.sh** (run as root or with sudo)  
    Script will toggle between the headphone and speaker driver.  
-   Run as root (or with sudo). Will only work if there are no active audio streams.  
+   Will only work if there are no active audio streams.  
 
-2. **pulse.switch.audio.sh**  
+
+2. **pulse.switch.audio.sh** (run as normal user)
    Script will toggle driver and will work if active audio streams are present.  
-   Run as a normal user.  
-   Since this script calls script.audio.driver.sh, the normal user running this script must have the necessary sudo rights.  
+   Since this script calls **switch.audio.driver.sh**, the normal user running this script must have the necessary sudo rights.  
    ie:  
    **/etc/sudoers**   
    youruser ALL=(ALL) NOPASSWD: /usr/local/sbin/switch.audio.driver.sh 
