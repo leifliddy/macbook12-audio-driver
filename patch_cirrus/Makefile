@@ -9,7 +9,7 @@ clean:
 install:
 	cp snd-hda-codec-cirrus.ko /lib/modules/$(shell uname -r)/updates/snd-hda-codec-cirrus.ko_speaker
 	ln -sf /lib/modules/$(shell uname -r)/updates/snd-hda-codec-cirrus.ko_speaker /lib/modules/$(shell uname -r)/updates/snd-hda-codec-cirrus.ko
-	#symlinks -c /lib/modules/$(shell uname -r)/updates 	#uncomment to use relative path links 
+	symlinks -c /lib/modules/$(shell uname -r)/updates 	# relative path links look cleaner
 	depmod -a
 	killall -9 alsactl &> /dev/null
 	modprobe -r snd_hda_intel

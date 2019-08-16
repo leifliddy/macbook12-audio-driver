@@ -15,11 +15,11 @@ Compiling and installing driver:
 
 **fedora package install**
 ```
-dnf install wget make gcc kernel-devel
+dnf install wget symlinks make gcc kernel-devel
 ```
 **ubuntu package install**  
 ```
-apt install wget make gcc linux-headers-generic
+apt install wget symlinks make gcc linux-headers-generic
 ```
 **build driver**  
 ```
