@@ -51,12 +51,11 @@ Note: might be easier to just reboot
 
 **Use provided support scripts to switch between the speaker and headphone driver**  
 1. **switch.audio.driver.sh** (run as root or with sudo)  
-   Script will toggle between the headphone and speaker driver.  
-   Will only work if there are no active audio streams.  
+   Script will toggle between the headphone and speaker driver, but won't work if active audio streams are present.  
 
 
 2. **pulse.switch.audio.sh** (run as normal user)  
-   Script will toggle driver and will work if active audio streams are present.   
+   Script will also toggle the speaker and headphone driver and will work if active audio streams are present.   
    Since this script calls **switch.audio.driver.sh**, the normal user running this script must have the necessary sudo rights.  
    ie:  
    **/etc/sudoers**   
