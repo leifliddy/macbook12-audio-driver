@@ -97,7 +97,8 @@ void snd_hda_coef_item(struct hda_codec *codec, u16 write_flag, hda_nid_t nid, u
 }
 static int headphones_a1534 (struct hda_codec *codec) {
 	int retval;
-	printk("snd_hda_intel: headphones_a1534 begin");
+	//printk("snd_hda_intel: headphones_a1534 begin");
+id
 
         retval = snd_hda_codec_read_check(codec, 0x00, 0, AC_VERB_PARAMETERS, 0x00000000, 0x10134208, 1); // 0x000f0000
 
@@ -614,11 +615,11 @@ static int headphones_a1534 (struct hda_codec *codec) {
         retval = snd_hda_codec_read_check(codec, 0x10, 0, AC_VERB_GET_POWER_STATE, 0x00000000, 0x00000000, 341); // 0x010f0500
         retval = snd_hda_codec_read_check(codec, 0x02, 0, AC_VERB_GET_POWER_STATE, 0x00000000, 0x00000000, 342); // 0x002f0500
 
-	printk("snd_hda_intel: headphones_a1534 end");
+	//printk("snd_hda_intel: headphones_a1534 end");
 }
 static int setup_a1534 (struct hda_codec *codec) {
 	int retval;
-	printk("snd_hda_intel: setup_a1534 begin");
+	//printk("snd_hda_intel: setup_a1534 begin");
 
         retval = snd_hda_codec_read_check(codec, 0x00, 0, AC_VERB_PARAMETERS, 0x00000000, 0x10134208, 1); // 0x000f0000
         retval = snd_hda_codec_read_check(codec, 0x00, 0, AC_VERB_PARAMETERS, 0x00000002, 0x00100401, 2); // 0x000f0002
@@ -3502,13 +3503,13 @@ static int setup_a1534 (struct hda_codec *codec) {
 
         snd_hda_codec_write(codec, codec->core.afg, 0, AC_VERB_SET_POWER_STATE, 0x00000003); // 0x00170503
 
-	printk("snd_hda_intel: setup_a1534 end");
+	//printk("snd_hda_intel: setup_a1534 end");
 	return 0;
 }
 
 static int play_a1534 (struct hda_codec *codec) {
         int retval;
-        printk("snd_hda_intel: play_a1534 begin");
+        //printk("snd_hda_intel: play_a1534 begin");
 
         retval = snd_hda_codec_read_check(codec, 0x00, 0, AC_VERB_PARAMETERS, 0x00000000, 0x10134208, 1); // 0x000f0000
 
@@ -3710,7 +3711,7 @@ static int play_a1534 (struct hda_codec *codec) {
         retval = snd_hda_codec_read_check(codec, 0x06, 0, AC_VERB_GET_POWER_STATE, 0x00000000, 0x00000033, 129); // 0x006f0500
         retval = snd_hda_codec_read_check(codec, 0x0a, 0, AC_VERB_GET_POWER_STATE, 0x00000000, 0x00000000, 130); // 0x00af0500
 
-        printk("snd_hda_intel: play_a1534 end");
+        //printk("snd_hda_intel: play_a1534 end");
 	return 0;
 }
 
