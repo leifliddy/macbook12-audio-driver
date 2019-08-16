@@ -55,8 +55,8 @@ Note: might be easier to just reboot
    Will only work if there are no active audio streams.  
 
 
-2. **pulse.switch.audio.sh** (run as normal user)
-   Script will toggle driver and will work if active audio streams are present.  
+2. **pulse.switch.audio.sh** (run as normal user)  
+   Script will toggle driver and will work if active audio streams are present.   
    Since this script calls **switch.audio.driver.sh**, the normal user running this script must have the necessary sudo rights.  
    ie:  
    **/etc/sudoers**   
