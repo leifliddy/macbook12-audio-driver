@@ -1,6 +1,6 @@
 #!/bin/bash
 
-switch_audio_driver='sudo /usr/local/sbin/switch.audio.driver.sh'
+switch_audio_driver='sudo /usr/local/bin/switch.audio.driver.sh'
 
 change_active_sink() {
   make_active_sink=$1

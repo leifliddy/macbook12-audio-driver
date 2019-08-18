@@ -59,6 +59,6 @@ Note: might be easier to just reboot
    Since this script calls **switch.audio.driver.sh**, the normal user running this script must have the necessary sudo rights.  
    ie:  
    **/etc/sudoers**   
-   youruser ALL=(ALL) NOPASSWD: /usr/local/sbin/switch.audio.driver.sh 
+   youruser ALL=(ALL) NOPASSWD: /usr/local/bin/switch.audio.driver.sh 
 
    Note: **pulse.switch.audio.sh** works perfectly on Fedora 30. Had trouble getting it to work reliably on Ubuntu 19.04  
