@@ -10,7 +10,7 @@ patch_dir='patch_cirrus'
 hda_dir="$build_dir/hda-$kernel_version"
 
 [[ ! -d $build_dir ]] && mkdir $build_dir
-[[ ! -d $hda_dir ]] && mkdir $build_dir
+[[ ! -d $hda_dir ]] && rm -rf $hda_dir
 
 # attempt to download linux-x.x.x.tar.xz kernel
 wget -c https://cdn.kernel.org/pub/linux/kernel/v$major_version.x/linux-$kernel_version.tar.xz -P $build_dir
@@ -35,7 +35,7 @@ make install
 echo -e "\ncontents of $update_dir"
 ls -lA $update_dir
 
-# modify /etc/pulse/daemon.conf 
+# modify /etc/pulse/daemon.conf
 # ensure four channels are enabled: 'default-sample-channels = 4'
 
 pulse_daemon_conf='/etc/pulse/daemon.conf'
@@ -44,7 +44,7 @@ pulse_daemon_conf='/etc/pulse/daemon.conf'
 default_sample_channels=$(grep '^default-sample-channels.*$' $pulse_daemon_conf)
 
 if [ -n "$default_sample_channels" ]; then
-   if [[ "$default_sample_channels" != 'default_sample_channels = 4' ]]; then
+   if [[ "$default_sample_channels" != 'default-sample-channels = 4' ]]; then
 	  echo -e "\nmodifying /etc/pulse/daemon.conf\ndefault-sample-channels = 4"
 	  sed -i 's/^default-sample-channels.*$/default-sample-channels = 4/' $pulse_daemon_conf
 	  killall pulseaudio &> /dev/null
