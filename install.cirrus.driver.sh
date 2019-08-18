@@ -10,6 +10,7 @@ patch_dir='patch_cirrus'
 hda_dir="$build_dir/hda-$kernel_version"
 
 [[ ! -d $build_dir ]] && mkdir $build_dir
+[[ ! -d $hda_dir ]] && mkdir $build_dir
 
 # attempt to download linux-x.x.x.tar.xz kernel
 wget -c https://cdn.kernel.org/pub/linux/kernel/v$major_version.x/linux-$kernel_version.tar.xz -P $build_dir
@@ -40,7 +41,7 @@ ls -lA $update_dir
 pulse_daemon_conf='/etc/pulse/daemon.conf'
 [[ ! -f $pulse_daemon_conf ]] && exit
 
-default_sample_channels=$(grep '^default-sample-channels.*$' $pulse_daemon_conf)
+default_sample_channels=$(egrep '^default-sample-channels.*$' $pulse_daemon_conf)
 
 if [ -n "$default_sample_channels" ]; then
    if [ "$default_sample_channels" != 'default_sample_channels = 4' ]; then
