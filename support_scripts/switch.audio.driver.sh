@@ -23,11 +23,12 @@ reload_driver() {
 }
 
 if [[ $speaker_module_active ]]; then
-   echo "switching to headphones"
+   echo 'switching to headphones'
+   echo '**if volume seems low, use alsa mixer to increase master volume for HDA Intel PCH card'
    ln -sf $cirrus_headphones $cirrus_active
    reload_driver
 else
-   echo "switching to speaker"
+   echo 'switching to speaker'
    ln -sf $cirrus_speaker $cirrus_active
    reload_driver
 fi
