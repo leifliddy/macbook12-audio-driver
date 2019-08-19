@@ -29,12 +29,15 @@ cd macbook12-audio-driver/
 ```
 
 At this point, the speakers should (hopefully) be working. You can stop here if you don't plan on using headphones.
-
+Following the steps below to switch between the speaker and heaphone drivers, results in subpar sounding speakers. 
+If you want to use headphones, I would recommend that you run the **switch.audio.driver.sh** script and reboot. 
+Perform the same steps again when you want to use the speakers.
 
 
 Switching between the speaker and headphone drivers:
 -----------
 Things get a bit convoluted here....
+
 
 **Edit /etc/pulse/default.pa**  
    With the changes listed in the **pulse_audio_configs/default.pa** file
