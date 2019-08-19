@@ -26,6 +26,7 @@ apt install wget symlinks make gcc linux-headers-generic
 git clone https://github.com/leifliddy/macbook12-audio-driver.git  
 cd macbook12-audio-driver/
 ./install.cirrus.driver.sh
+reboot
 ```
 
 At this point, the speakers should (hopefully) be working. You can stop here if you don't plan on using headphones.
