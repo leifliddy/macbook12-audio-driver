@@ -41,7 +41,7 @@ Switching between the speaker and headphone drivers:
 Things get a bit convoluted here....
 
 
-**Edit /etc/pulse/default.pa**  (to be able to reload the sound modules without rebooting)
+**Edit /etc/pulse/default.pa**  (to be able to reload the sound modules without rebooting)  
    With the changes listed in the **pulse_audio_configs/default.pa** file
 
 **Activate PulseAudio Changes**  
