@@ -95,6 +95,8 @@ void snd_hda_coef_item(struct hda_codec *codec, u16 write_flag, hda_nid_t nid, u
                 }
         }
 }
+
+/* reserved for future use
 static int headphones_a1534 (struct hda_codec *codec) {
 	int retval;
 	//printk("snd_hda_intel: headphones_a1534 begin");
@@ -615,7 +617,10 @@ static int headphones_a1534 (struct hda_codec *codec) {
         retval = snd_hda_codec_read_check(codec, 0x02, 0, AC_VERB_GET_POWER_STATE, 0x00000000, 0x00000000, 342); // 0x002f0500
 
 	//printk("snd_hda_intel: headphones_a1534 end");
+	return 0;
 }
+*/
+
 static int setup_a1534 (struct hda_codec *codec) {
 	int retval;
 	//printk("snd_hda_intel: setup_a1534 begin");

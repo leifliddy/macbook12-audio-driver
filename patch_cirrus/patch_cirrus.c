@@ -38,8 +38,8 @@ struct cs_spec {
 	/* for MBP SPDIF control */
 	int (*spdif_sw_put)(struct snd_kcontrol *kcontrol,
 			    struct snd_ctl_elem_value *ucontrol);
-
 	// new item to limit times we redo unmute/play
+
 	struct timespec last_play_time;
 	int play_init;
 	// record the first play time - we have a problem there
@@ -235,19 +235,6 @@ static const struct hda_verb cs4208_coef_init_verbs[] = {
 	{0x24, AC_VERB_SET_PROC_COEF, 0x0001}, /* A1 ICS */
 	{0x24, AC_VERB_SET_COEF_INDEX, 0x0034},
 	{0x24, AC_VERB_SET_PROC_COEF, 0x1C01}, /* A1 Enable, A Thresh = 300mV */
-	//{0x24, AC_VERB_SET_COEF_INDEX, 0x0000},
-        //{0x24, AC_VERB_SET_PROC_COEF, 0x0080}, //SPCC = 10b, SP1M = 0b//
-        //{0x24, AC_VERB_SET_COEF_INDEX, 0x0004},
-        //{0x24, AC_VERB_SET_PROC_COEF, 0x0C04}, /*TX1 ch 0: slot  4, ch 1: slot 12 */
-        //{0x24, AC_VERB_SET_COEF_INDEX, 0x0005},
-        //{0x24, AC_VERB_SET_PROC_COEF, 0x1000}, /*TX1 ch 2: slot  0, ch 3: slot 16 */
-        //{0x24, AC_VERB_SET_COEF_INDEX, 0x001D},
-        //{0x24, AC_VERB_SET_PROC_COEF, 0x0BF6}, //DC detect level = 36h//
-        //{0x24, AC_VERB_SET_COEF_INDEX, 0x0033},
-        //{0x24, AC_VERB_SET_PROC_COEF, 0x4493}, //A/C Gat, A2/C Inv, A1/A2/C ICS//
-        //{0x24, AC_VERB_SET_COEF_INDEX, 0x0034},
-        //{0x24, AC_VERB_SET_PROC_COEF, 0x1B13}, /* A1 Enable, A Thresh = 250mV */
-        //{0x24, AC_VERB_SET_COEF_INDEX, 0x0050},
 	{} /* terminator */
 };
 
@@ -514,29 +501,6 @@ static const struct hda_pintbl mba6_pincfgs[] = {
 	{} /* terminator */
 };
 
-//static const struct hda_pintbl mb9_pincfgs[] = {
-//        { 0x10, 0x042b20f0 },  /* HP */
-//        { 0x11, 0x500000f0 }, /*stereo*/
-//        { 0x12, 0x500000f0 }, /*stereo*/
-//        { 0x13, 0x500000f0 }, /*stereo*/
-//        { 0x14, 0x500000f0 }, /*stereo*/
-//        { 0x15, 0x770000f0 }, /*stereo Amp-In*/
-//        { 0x16, 0x770000f0 }, /*stereo Amp-In*/
-//        { 0x17, 0x430000f0 }, /*stereo Amp-In*/
-//        { 0x18, 0x04ab2050 }, /* external Mic */
-//        { 0x19, 0x90a00070 }, /* internal Mic */
-//        { 0x1a, 0x770000f0 }, /*stereo Amp-In*/
-//        { 0x1b, 0x770000f0 }, /*stereo Amp-In*/
-//        { 0x1c, 0x770000f0 }, /*stereo Amp-In*/
-//        { 0x1d, 0x90400010 }, /*8-channels digital --digital speaker amplifier*/
-//        { 0x1e, 0x500000f0 }, /*8-channels digital*/
-//        { 0x1f, 0x500000f0 }, /*8-channels digital*/
-//        { 0x20, 0x500000f0 }, /*8-channels digital*/
-//        { 0x21, 0x430000f0 }, /*stereo digital*/
-//        { 0x22, 0x430000f0 }, /*stereo digital*/
-//        {} /* terminator */
-//};
-
 static void cs420x_fixup_gpio_13(struct hda_codec *codec,
 				 const struct hda_fixup *fix, int action)
 {
@@ -561,195 +525,8 @@ static void cs420x_fixup_gpio_23(struct hda_codec *codec,
 	}
 }
 
-static int setup_a1534(struct hda_codec *codec);
-static int play_a1534(struct hda_codec *codec);
-//static int headphones_a1534(struct hda_codec *codec);
 #include "patch_cirrus_a1534.h"
-
-static int cs_4208_playback_pcm_prepare(struct hda_pcm_stream *hinfo,
-					struct hda_codec *codec,
-					unsigned int stream_tag,
-					unsigned int format,
-					struct snd_pcm_substream *substream)
-{
-	struct cs_spec *spec = codec->spec;
-	codec_dbg(codec, "cs_4208_playback_pcm_prepare enter\n");
-	snd_hda_codec_setup_stream(codec, hinfo->nid, stream_tag, 0, format);
-
-	if (spec->gen.pcm_playback_hook)
-		spec->gen.pcm_playback_hook(hinfo, codec, substream, HDA_GEN_PCM_ACT_PREPARE);
-
-	codec_dbg(codec, "cs_4208_playback_pcm_prepare end\n");
-
-	return 0;
-}
-static int cs_4208_playstops_4208_playback_pcm_prepare(struct hda_pcm_stream *hinfo,
-						       struct hda_codec *codec,
-						       unsigned int stream_tag,
-						       unsigned int format,
-						       struct snd_pcm_substream *substream)
-{
-	struct cs_spec *spec = codec->spec;
-
-	codec_dbg(codec, "cs_4208_playback_pcm_prepare enter\n");
-
-	snd_hda_codec_setup_stream(codec, hinfo->nid, stream_tag, 0, format);
-
-	if (spec->gen.pcm_playback_hook)
-		spec->gen.pcm_playback_hook(hinfo, codec, substream, HDA_GEN_PCM_ACT_PREPARE);
-
-	codec_dbg(codec, "cs_4208_playback_pcm_prepare end\n");
-
-	return 0;
-}
-
-static int cs_4208_playback_pcm_cleanup(struct hda_pcm_stream *hinfo,
-					struct hda_codec *codec,
-					struct snd_pcm_substream *substream)
-{
-	//struct cs_spec *spec = codec->spec;
-	codec_dbg(codec, "cs_4208_playback_pcm_cleanup enter\n");
-	snd_hda_codec_cleanup_stream(codec, hinfo->nid);
-	codec_dbg(codec, "cs_4208_playback_pcm_cleanup exit\n");
-
-	return 0;
-}
-
-static void call_pcm_playback_hook(struct hda_pcm_stream *hinfo,
-				   struct hda_codec *codec,
-				   struct snd_pcm_substream *substream,
-				   int action)
-{
-	struct hda_gen_spec *spec = codec->spec;
-	if (spec->pcm_playback_hook)
-		spec->pcm_playback_hook(hinfo, codec, substream, action);
-}
-// this is very hacky but until get more understanding of what we can do with the 4208 setup
-// re-define these from hda_codec.c here
-// NOTA BENE - need to check this is consistent with any hda_codec.c updates!!
-
-/*
- * audio-converter setup caches
- */
-struct hda_cvt_setup {
-	hda_nid_t nid;
-	u8 stream_tag;
-	u8 channel_id;
-	u16 format_id;
-	unsigned char active;   /* cvt is currently used */
-	unsigned char dirty;    /* setups should be cleared */
-};
-/* get or create a cache entry for the given audio converter NID */
-static struct hda_cvt_setup *
-get_hda_cvt_setup_4208(struct hda_codec *codec, hda_nid_t nid)
-{
-	struct hda_cvt_setup *p;
-	int i;
-
-	for (i = 0; i < codec->cvt_setups.used; i++) {
-		p = snd_array_elem(&codec->cvt_setups, i);
-		if (p->nid == nid)
-			return p;
-	}
-	p = snd_array_new(&codec->cvt_setups);
-	if (p)
-		p->nid = nid;
-	return p;
-}
-
-static int cs_4208_playback_pcm_open(struct hda_pcm_stream *hinfo,
-				     struct hda_codec *codec,
-				     struct snd_pcm_substream *substream)
-{
-	struct cs_spec *spec = codec->spec;
-	struct hda_gen_spec *gen_spec = &(spec->gen);
-	int err;
-	int hp_pin_sense;
-	unsigned int hp_pin;
-	//printk("snd_hda_intel: playback_pcm_open hook");
-	codec_dbg(codec, "playback_pcm_open nid 0x%02x rates 0x%08x formats 0x%016llx\n",hinfo->nid,hinfo->rates,hinfo->formats);
-		hp_pin = 0x10; // HP pin is Node 0x10
-		//hp_pin_sense = snd_hda_jack_detect(codec, hp_pin);
-                hp_pin_sense = 0; //HP not working at the moment, disabling for now 
-		//printk("snd_hda_intel: hp_pin_sense: %d", hp_pin_sense);
-		//if (hp_pin_sense == 1) { // output to headphones
-			//printk("snd_hda_intel: playing to headphones");
-			//err = headphones_a1534(codec);
-		//}  else {
-		if (hp_pin_sense == 0) { // output to speakers
-			//printk("snd_hda_intel: playing to speakers");
-			err = play_a1534(codec);
-		}
-	
-	//call_pcm_playback_hook(hinfo, codec, substream, HDA_GEN_PCM_ACT_OPEN);
-
-	//mutex_lock(&gen_spec->pcm_mutex);
-	//err = snd_hda_multi_out_analog_open(codec,
-						//&spec->multiout, substream,
-						//hinfo);
-	//if (!err) {
-		//spec->active_streams |= 1 << STREAM_MULTI_OUT;
-		//call_pcm_playback_hook(hinfo, codec, substream,
-					//HDA_GEN_PCM_ACT_OPEN);
-	//}
-	//mutex_unlock(&gen_spec->pcm_mutex);
-	return 0;
-}
-
-static const struct hda_pcm_stream cs4208_pcm_analog_playback = {
-	.substreams = 1,
-	.channels_min = 2,
-	.channels_max = 4,
-	.rates = SNDRV_PCM_RATE_44100,
-	.formats = SNDRV_PCM_FMTBIT_S16_LE, //|SNDRV_PCM_FMTBIT_S24_LE
-	.maxbps = 16, // 32 before
-	.ops = {
- 		.open = cs_4208_playback_pcm_open,
-		.prepare = cs_4208_playback_pcm_prepare,
-		.cleanup = cs_4208_playback_pcm_cleanup,
-	},
-};
-
-static void cs_4208_fill_pcm_stream_name(char *str, size_t len, const char *sfx,
-					 const char *chip_name)
-{
-	char *p;
-
-	if (*str)
-		return;
-	strlcpy(str, chip_name, len);
-
-	/* drop non-alnum chars after a space */
-	for (p = strchr(str, ' '); p; p = strchr(p + 1, ' ')) {
-		if (!isalnum(p[1])) {
-			*p = 0;
-			break;
-		}
-	}
-	strlcat(str, sfx, len);
-}
-
-static void cs4208_fixup_mb9(struct hda_codec *codec,
-			     const struct hda_fixup *fix, int action)
-{
-	unsigned int chans;
-	unsigned int idx;
-	//printk("snd_hda_intel cs4208_fixup_mb9 start\n");
-	if (action == HDA_FIXUP_ACT_PRE_PROBE) {
-		struct cs_spec *spec = codec->spec;
-		//change channel count from 8 --> 4 on 0x0a
-		//snd_hda_override_wcaps(codec, 0x0a, 271921);
-		snd_hda_override_wcaps(codec, 0x0a, 0x42631);  //4chan
-		//snd_hda_override_wcaps(codec, 0x0a, 0x40631);  //2chan
-
-		//chans = get_wcaps(codec, 0x0a);
-		//chans = get_wcaps_channels(chans);
-		//printk("xxx 0x0a chans is %u\n", chans);
-
-		//node 0xa only supports 48khz playback
-		//spec->gen.stream_digital_playback = &cs4208_48k_pcm_digital_playback;
-	}
-}
+#include "patch_cirrus_mb9_pre.h"
 
 static const struct hda_fixup cs420x_fixups[] = {
 	[CS420X_MBP53] = {
@@ -858,8 +635,6 @@ enum {
 	CS4208_MBP11,
 	CS4208_MACMINI,
 	CS4208_GPIO0,
-	CS4208_MB9,
-	CS4208_MB9_GPIO
 };
 
 static const struct hda_model_fixup cs4208_models[] = {
@@ -867,7 +642,6 @@ static const struct hda_model_fixup cs4208_models[] = {
 	{ .id = CS4208_MBA6, .name = "mba6" },
 	{ .id = CS4208_MBP11, .name = "mbp11" },
 	{ .id = CS4208_MACMINI, .name = "macmini" },
-	{ .id = CS4208_MB9, .name = "mb9" },
 	{}
 };
 
@@ -883,7 +657,6 @@ static const struct snd_pci_quirk cs4208_mac_fixup_tbl[] = {
 	SND_PCI_QUIRK(0x106b, 0x7100, "MacBookAir 6,1", CS4208_MBA6),
 	SND_PCI_QUIRK(0x106b, 0x7200, "MacBookAir 6,2", CS4208_MBA6),
 	SND_PCI_QUIRK(0x106b, 0x7b00, "MacBookPro 12,1", CS4208_MBP11),
-	SND_PCI_QUIRK(0x106b, 0x6500, "MacBook 9,1", CS4208_MB9),
 	{} /* terminator */
 };
 
@@ -917,7 +690,7 @@ static void cs4208_fixup_mac(struct hda_codec *codec,
 
 /* MacMini 7,1 has the inverted jack detection */
 static void cs4208_fixup_macmini(struct hda_codec *codec,
-                                 const struct hda_fixup *fix, int action)
+				 const struct hda_fixup *fix, int action)
 {
 	static const struct hda_pintbl pincfgs[] = {
 		{ 0x18, 0x00ab9150 }, /* mic (audio-in) jack: disable detect */
@@ -986,16 +759,6 @@ static const struct hda_fixup cs4208_fixups[] = {
 		.type = HDA_FIXUP_FUNC,
 		.v.func = cs4208_fixup_gpio0,
 	},
-	[CS4208_MB9] = {
-		.type = HDA_FIXUP_PINS,
-		//.v.pins = mb9_pincfgs,
-		.chained = true,
-		.chain_id = CS4208_MB9_GPIO,
-	},
-	[CS4208_MB9_GPIO] = {
-		.type = HDA_FIXUP_FUNC,
-		.v.func = cs4208_fixup_mb9,
-	},
 	[CS4208_MAC_AUTO] = {
 		.type = HDA_FIXUP_FUNC,
 		.v.func = cs4208_fixup_mac,
@@ -1013,380 +776,45 @@ static void cs4208_fix_amp_caps(struct hda_codec *codec, hda_nid_t adc)
 	snd_hda_override_amp_caps(codec, adc, HDA_INPUT, caps);
 }
 
-void cs_4208_playback_pcm_hook(struct hda_pcm_stream *hinfo,
-			       struct hda_codec *codec,
-			       struct snd_pcm_substream *substream,
-			       int action);
-
-void cs_4208_playback_pcm_hook(struct hda_pcm_stream *hinfo, struct hda_codec *codec, struct snd_pcm_substream *substream, int action)
-{
-
-	struct cs_spec *spec = codec->spec;
-
-	// so finally getting a handle on ordering here
-	// we need to do the OSX setup in the OPEN section
-	// as the generic hda format and stream setup is done BEFORE the PREPARE hook
-	// (theres a good chance we only need to do this once at least as long as machine doesnt sleep)
-	// (or we could just override the prepare function completely)
-	// I now think the noise was caused by mis-match between the stream format and the nid setup format
-	// (because the generic setup was done before the OSX setup and the actual streamed format is slightly different)
-	// (the hda documentation says these really need to match)
-	// It appears the 4208 setup can handle at least some differences in the stream format
-	// certainly seems to handle S24_LE or S32_LE differences
-
-
-	if (action == HDA_GEN_PCM_ACT_OPEN) {
-		struct hda_cvt_setup *p = NULL;
-		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook open");
-        int hp_pin_sense;
-        unsigned int hp_pin;
-        int err;
-		hp_pin = 0x10; // HP pin is Node 0x10
-		hp_pin_sense = snd_hda_jack_detect(codec, hp_pin);
-		//printk("snd_hda_intel: hp_pin_sense: %d", hp_pin_sense);
-		//hp_pin_sense = 0;
-		//if (hp_pin_sense == 1) { // output to headphones
-		//	printk("snd_hda_intel: playing to headphones");
-		//}
-		if (hp_pin_sense == 0) { // output to speakers
-			//printk("snd_hda_intel: playing to speakers");
-        		err = play_a1534(codec);
-		}
-
-		//if (!spec->play_init) {
-		if (1) {
-			//int power_chk = 0;
-			struct timespec curtim;
-			getnstimeofday(&curtim);
-			spec->first_play_time.tv_sec = curtim.tv_sec;
-			//cs_4208_play_setup(codec);
-			//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook BAD setup play called");
-			spec->play_init = 1;
-			spec->playing = 0;
-		}
-
-		// we need to force the stream to be re-set here
-		// problem is it appears hda_codec caches the stream format and id and only updates if changed
-		// and there doesnt seem to be a good way to force an update
-		// problem - the get_hda_cvt_setup function is local to hda_codec
-
-		// this routine doesnt seem to be nid specific - so explicitly fix the known nids here
-
-		p = get_hda_cvt_setup_4208(codec, 0x02);
-
-		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook BAD cvt pointer 0x02 %p",p);
-
-		p->stream_tag = 0;
-		p->channel_id = 0;
-		p->format_id = 0;
-
-		p = get_hda_cvt_setup_4208(codec, 0x02);
-
-		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook BAD cvt pointer 0x03 %p",p);
-
-		p->stream_tag = 0;
-		p->channel_id = 0;
-		p->format_id = 0;
-
-		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook end");
-	} else if (action == HDA_GEN_PCM_ACT_PREPARE) {
-		struct timespec curtim;
-		getnstimeofday(&curtim);
-		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook BAD HOOK PREPARE init %d last %ld cur %ld",spec->play_init,spec->last_play_time.tv_sec,curtim.tv_sec);
-		//if (spec->play_init && curtim.tv_sec > (spec->first_play_time.tv_sec + 0))
-		//if (spec->play_init) {
-		if (1) {
-			int power_chk = 0;
-        		power_chk = snd_hda_codec_read(codec, codec->core.afg, 0, AC_VERB_GET_POWER_STATE, 0);
-			//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook BAD power check 0x01 2 %d", power_chk);
-			spec->last_play_time.tv_sec = curtim.tv_sec;
-			spec->playing = 1;
-		}
-
-		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook BAD HOOK PREPARE end");
-	} else if (action == HDA_GEN_PCM_ACT_CLEANUP) {
-		int power_chk = 0;
-		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook BAD HOOK CLEANUP");
-		power_chk = snd_hda_codec_read(codec, codec->core.afg, 0, AC_VERB_GET_POWER_STATE, 0);
-		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook BAD power check 0x01 3 %d", power_chk);
-		//if (spec->playing) {
-			//cs_4208_play_cleanup(codec);
-			printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook BAD done play down");
-			spec->playing = 0;
-		//}
-		//cs_4208_play_cleanup(codec);
-		power_chk = snd_hda_codec_read(codec, codec->core.afg, 0, AC_VERB_GET_POWER_STATE, 0);
-		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook BAD power check 0x01 4 %d", power_chk);
-		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook BAD HOOK CLEANUP end");
-	}
-	//} else if (action == HDA_GEN_PCM_ACT_CLOSE) {
-		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook close");
-		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook end");
-	//}
-
-}
-
-static int cs_4208_build_controls_explicit(struct hda_codec *codec)
-{
-	//printk("snd_hda_intel: cs_4208_build_controls_explicit\n");
-	//printk("snd_hda_intel: end cs_4208_build_controls_explicit\n");
-	return 0;
-}
-
-int cs_4208_build_pcms_explicit(struct hda_codec *codec)
-{
-	int retval;
-
-	struct cs_spec *spec = codec->spec;
-	struct hda_gen_spec *gen_spec = &(spec->gen);
-	struct hda_pcm *info;
-
-        //printk("snd_hda_intel: cs_4208_build_pcms_explicit\n");
-
-	//retval =  snd_hda_gen_build_pcms(codec);
-
-	cs_4208_fill_pcm_stream_name(gen_spec->stream_name_analog,
-					sizeof(gen_spec->stream_name_analog),
-					" Analog", codec->core.chip_name);
-	info = snd_hda_codec_pcm_new(codec, "%s", gen_spec->stream_name_analog);
-	if (!info)
-		return -ENOMEM;
-	gen_spec->pcm_rec[0] = info;
-
-	info->stream[SNDRV_PCM_STREAM_PLAYBACK] = cs4208_pcm_analog_playback;
-	info->stream[SNDRV_PCM_STREAM_PLAYBACK].nid = 0x04; // 0x04 is for speakers 0x02 is for headphones
-	info->stream[SNDRV_PCM_STREAM_PLAYBACK].channels_max = 4;
-
-	info->pcm_type = HDA_PCM_TYPE_AUDIO;
-
-	retval = 0;
-
-	//printk("snd_hda_intel: end cs_4208_build_pcms_explicit\n");
-	return retval;
-}
-void cs_4208_jack_unsol_event(struct hda_codec *codec, unsigned int res)
-{
-	struct hda_jack_tbl *event;
-	int tag = (res >> AC_UNSOL_RES_TAG_SHIFT) & 0x7f;
-
-	dev_info(hda_codec_dev(codec), "cs_4208_jack_unsol_event 0x%08x tag 0x%02x\n",res,tag);
-
-	event = snd_hda_jack_tbl_get_from_tag(codec, tag);
-        if (!event)
-		return;
-	event->jack_dirty = 1;
-
-	//call_jack_callback(codec, event);
-	snd_hda_jack_report_sync(codec);
-}
-
-#define cs_4208_free            snd_hda_gen_free
-
-static int cs_4208_init_explicit(struct hda_codec *codec)
-{
-	//struct cs_spec *spec = codec->spec;
-
-	//printk("snd_hda_intel: cs_4208_init_explicit enter\n");
-	//printk("snd_hda_intel: cs_4208_init snd_hda_gen_init NOT CALLED\n");
-	//printk("snd_hda_intel: cs_4208_init_explicit end\n");
-
-	return 0;
-}
-
-static void cs_4208_free_explicit(struct hda_codec *codec)
-{
-	kfree(codec->spec);
-}
-
-
-// real def is CONFIG_PM
-static const struct hda_codec_ops cs_4208_patch_ops_explicit = {
-	.build_controls = cs_4208_build_controls_explicit,
-	.build_pcms = cs_4208_build_pcms_explicit,
-	.init = cs_4208_init_explicit,
-	.free = cs_4208_free_explicit,
-	.unsol_event = snd_hda_jack_unsol_event, //cs_4208_jack_unsol_event,
-//#ifdef UNDEF_CONFIG_PM
-//      .suspend = cs_4208_suspend,
-//      .resume = cs_4208_resume,
-//#endif
-};
+#include "patch_cirrus_mb9_post.h"
 
 static int patch_cs4208(struct hda_codec *codec)
- {
- 	struct cs_spec *spec;
- 	int err;
-        struct hda_pcm *info = NULL;
-        struct hda_pcm_stream *hinfo = NULL;
- 
- 	spec = cs_alloc_spec(codec, CS4208_VENDOR_NID);
- 	if (!spec)
- 		return -ENOMEM;
- 
-        err = setup_a1534(codec);
-        //err = headphones_a1534(codec);
-        err = play_a1534(codec);
-	//codec->patch_ops = cs_patch_ops;
+{
+	struct cs_spec *spec;
+	int err;
+
+	spec = cs_alloc_spec(codec, CS4208_VENDOR_NID);
+	if (!spec)
+		return -ENOMEM;
+
+	codec->patch_ops = cs_patch_ops;
+	spec->gen.automute_hook = cs_automute;
+	/* exclude NID 0x10 (HP) from output volumes due to different steps */
+	spec->gen.out_vol_mask = 1ULL << 0x10;
+
+	//mb9-specific
+	err = setup_a1534(codec);
+	err = play_a1534(codec);
 	codec->patch_ops = cs_4208_patch_ops_explicit;
-        spec->gen.pcm_playback_hook = cs_4208_playback_pcm_hook;
- 	spec->gen.automute_hook = cs_automute;
+	spec->gen.pcm_playback_hook = cs_4208_playback_pcm_hook;
+	//end
 
- 	/* exclude NID 0x10 (HP) from output volumes due to different steps */
-	//spec->gen.out_vol_mask = 1ULL << 0x10;
- 
- 	snd_hda_pick_fixup(codec, cs4208_models, cs4208_fixup_tbl, cs4208_fixups);
-	//codec->inv_jack_detect = 1; // test for headphones
-
- 	snd_hda_apply_fixup(codec, HDA_FIXUP_ACT_PRE_PROBE);
- 
-	//snd_hda_override_wcaps(codec, 0x18, get_wcaps(codec, 0x18) | AC_WCAP_STEREO);
-	//cs4208_fix_amp_caps(codec, 0x18);
-	//cs4208_fix_amp_caps(codec, 0x1b);
-	//cs4208_fix_amp_caps(codec, 0x1c);
- 
- 	//err = setup_a1534(codec);
- 	//err = headphones_a1534(codec);
- 	err = cs_parse_auto_config(codec);
- 	if (err < 0)
- 		goto error;
- 
-	snd_hda_apply_fixup(codec, HDA_FIXUP_ACT_PROBE);
-	//err = setup_a1534(codec);
-	//err = headphones_a1534(codec);
-	// dump headphone config
-	//printk("snd_hda_intel: headphone config hp_jack_present %d\n",spec->gen.hp_jack_present);
-	//printk("snd_hda_intel: headphone config line_jack_present %d\n",spec->gen.line_jack_present);
-	//printk("snd_hda_intel: headphone config speaker_muted %d\n",spec->gen.speaker_muted);
-	//printk("snd_hda_intel: headphone config line_out_muted %d\n",spec->gen.line_out_muted);
-	//printk("snd_hda_intel: headphone config auto_mic %d\n",spec->gen.auto_mic);
-	//printk("snd_hda_intel: headphone config automute_speaker %d\n",spec->gen.automute_speaker);
-	//printk("snd_hda_intel: headphone config automute_lo %d\n",spec->gen.automute_lo);
-	//printk("snd_hda_intel: headphone config detect_hp %d\n",spec->gen.detect_hp);
-	//printk("snd_hda_intel: headphone config detect_lo %d\n",spec->gen.detect_lo);
-	//printk("snd_hda_intel: headphone config keep_vref_in_automute %d\n",spec->gen.keep_vref_in_automute);
-	//printk("snd_hda_intel: headphone config line_in_auto_switch %d\n",spec->gen.line_in_auto_switch);
-	//printk("snd_hda_intel: headphone config auto_mute_via_amp %d\n",spec->gen.auto_mute_via_amp);
-	//printk("snd_hda_intel: headphone config suppress_auto_mute %d\n",spec->gen.suppress_auto_mute);
-	//printk("snd_hda_intel: headphone config suppress_auto_mic %d\n",spec->gen.suppress_auto_mic);
-
-	//printk("snd_hda_intel: headphone config hp_mic %d\n",spec->gen.hp_mic);
-
-	//printk("snd_hda_intel: headphone config suppress_hp_mic_detect %d\n",spec->gen.suppress_hp_mic_detect);
-
-
-	//printk("snd_hda_intel: auto config pins line_outs %d\n", spec->gen.autocfg.line_outs);
-	//printk("snd_hda_intel: auto config pins line_outs 0x%02x\n", spec->gen.autocfg.line_out_pins[0]);
-	//printk("snd_hda_intel: auto config pins line_outs 0x%02x\n", spec->gen.autocfg.line_out_pins[1]);
-	//printk("snd_hda_intel: auto config pins speaker_outs %d\n", spec->gen.autocfg.speaker_outs);
-	//printk("snd_hda_intel: auto config pins speaker_outs 0x%02x\n", spec->gen.autocfg.speaker_pins[0]);
-	//printk("snd_hda_intel: auto config pins speaker_outs 0x%02x\n", spec->gen.autocfg.speaker_pins[1]);
-	//printk("snd_hda_intel: auto config pins hp_outs %d\n", spec->gen.autocfg.hp_outs);
-	//printk("snd_hda_intel: auto config pins hp_outs 0x%02x\n", spec->gen.autocfg.hp_pins[0]);
-	//printk("snd_hda_intel: auto config pins inputs %d\n", spec->gen.autocfg.num_inputs);
-
-	//printk("snd_hda_intel: auto config pins inputs  pin 0x%02x\n", spec->gen.autocfg.inputs[0].pin);
-	//printk("snd_hda_intel: auto config pins inputs type %d\n", spec->gen.autocfg.inputs[0].type);
-	//printk("snd_hda_intel: auto config pins inputs is head set mic %d\n", spec->gen.autocfg.inputs[0].is_headset_mic);
-	//printk("snd_hda_intel: auto config pins inputs is head phn mic %d\n", spec->gen.autocfg.inputs[0].is_headphone_mic);
-	//printk("snd_hda_intel: auto config pins inputs is        boost %d\n", spec->gen.autocfg.inputs[0].has_boost_on_pin);
-
-	//printk("snd_hda_intel: auto config pins inputs  pin 0x%02x\n", spec->gen.autocfg.inputs[1].pin);
-	//printk("snd_hda_intel: auto config pins inputs type %d\n", spec->gen.autocfg.inputs[1].type);
-	//printk("snd_hda_intel: auto config pins inputs is head set mic %d\n", spec->gen.autocfg.inputs[1].is_headset_mic);
-	//printk("snd_hda_intel: auto config pins inputs is head phn mic %d\n", spec->gen.autocfg.inputs[1].is_headphone_mic);
-	//printk("snd_hda_intel: auto config pins inputs is        boost %d\n", spec->gen.autocfg.inputs[1].has_boost_on_pin);
-
-	//printk("snd_hda_intel: auto config inputs num_adc_nids %d\n", spec->gen.num_adc_nids);
-	//printk("snd_hda_intel: auto config inputs adc_nids 0x%02x\n", spec->gen.adc_nids[0]);
-	//printk("snd_hda_intel: auto config inputs adc_nids 0x%02x\n", spec->gen.adc_nids[1]);
-	//printk("snd_hda_intel: auto config inputs adc_nids 0x%02x\n", spec->gen.adc_nids[2]);
-	//printk("snd_hda_intel: auto config inputs adc_nids 0x%02x\n", spec->gen.adc_nids[3]);
-
-	//printk("snd_hda_intel: auto config multiout is num_dacs %d\n", spec->gen.multiout.num_dacs);
-	//printk("snd_hda_intel: auto config multiout is    dac_nids 0x%02x\n", spec->gen.multiout.dac_nids[0]);
-	//printk("snd_hda_intel: auto config multiout is    dac_nids 0x%02x\n", spec->gen.multiout.dac_nids[1]);
-	//printk("snd_hda_intel: auto config multiout is    dac_nids 0x%02x\n", spec->gen.multiout.dac_nids[2]);
-	//printk("snd_hda_intel: auto config multiout is    dac_nids 0x%02x\n", spec->gen.multiout.dac_nids[3]);
-	//printk("snd_hda_intel: auto config multiout is      hp_nid 0x%02x\n", spec->gen.multiout.hp_nid);
-	//printk("snd_hda_intel: auto config multiout is  hp_out_nid 0x%02x\n", spec->gen.multiout.hp_out_nid[0]);
-	//printk("snd_hda_intel: auto config multiout is  hp_out_nid 0x%02x\n", spec->gen.multiout.hp_out_nid[1]);
-	//printk("snd_hda_intel: auto config multiout is  hp_out_nid 0x%02x\n", spec->gen.multiout.hp_out_nid[2]);
-	//printk("snd_hda_intel: auto config multiout is  hp_out_nid 0x%02x\n", spec->gen.multiout.hp_out_nid[3]);
-	//printk("snd_hda_intel: auto config multiout is xtr_out_nid 0x%02x\n", spec->gen.multiout.extra_out_nid[0]);
-	//printk("snd_hda_intel: auto config multiout is xtr_out_nid 0x%02x\n", spec->gen.multiout.extra_out_nid[1]);
-	//printk("snd_hda_intel: auto config multiout is xtr_out_nid 0x%02x\n", spec->gen.multiout.extra_out_nid[2]);
-	//printk("snd_hda_intel: auto config multiout is xtr_out_nid 0x%02x\n", spec->gen.multiout.extra_out_nid[3]);
-	//printk("snd_hda_intel: auto config multiout is dig_out_nid 0x%02x\n", spec->gen.multiout.dig_out_nid);
-	//printk("snd_hda_intel: auto config multiout is slv_dig_out %p\n", spec->gen.multiout.slave_dig_outs);
-	//// fixups
-	//printk("snd_hda_intel: auto config multiout is num_dacs %d\n", spec->gen.multiout.num_dacs);
-	//printk("snd_hda_intel: auto config multiout is    dac_nids 0x%02x\n", spec->gen.multiout.dac_nids[0]);
-	//printk("snd_hda_intel: auto config multiout is    dac_nids 0x%02x\n", spec->gen.multiout.dac_nids[1]);
-
-	hda_nid_t *dac_nids_ptr = NULL;
-	dac_nids_ptr = spec->gen.multiout.dac_nids;
-	dac_nids_ptr[0] = 0x02;
-	dac_nids_ptr[1] = 0x03;
-	//dac_nids_ptr[2] = 0x04;
-	spec->gen.multiout.num_dacs = 2; // 0
-
-	//printk("snd_hda_intel: auto config multiout is num_dacs %d\n", spec->gen.multiout.num_dacs);
-	//printk("snd_hda_intel: auto config multiout is    dac_nids 0x%02x\n", spec->gen.multiout.dac_nids[0]);
-	//printk("snd_hda_intel: auto config multiout is    dac_nids 0x%02x\n", spec->gen.multiout.dac_nids[1]);
-
-	//printk("snd_hda_intel: auto config pins speaker_outs %d\n", spec->gen.autocfg.speaker_outs);
-	//printk("snd_hda_intel: auto config pins speaker_outs 0x%02x\n", spec->gen.autocfg.speaker_pins[0]);
-	//printk("snd_hda_intel: auto config pins speaker_outs 0x%02x\n", spec->gen.autocfg.speaker_pins[1]);
-
-	hda_nid_t *speaker_nids_ptr = NULL;
-	speaker_nids_ptr = spec->gen.autocfg.speaker_pins;
-	speaker_nids_ptr[0] = 0x10;
-	speaker_nids_ptr[1] = 0x11;
-	spec->gen.autocfg.speaker_outs = 2; // 2 
-
-	//printk("snd_hda_intel: auto config pins speaker_outs %d\n", spec->gen.autocfg.speaker_outs);
-	//printk("snd_hda_intel: auto config pins speaker_outs 0x%02x\n", spec->gen.autocfg.speaker_pins[0]);
-	//printk("snd_hda_intel: auto config pins speaker_outs 0x%02x\n", spec->gen.autocfg.speaker_pins[1]);
-
-	/// headphones
-       	//printk("snd_hda_intel: auto config multiout is  hp_out_nid 0x%02x\n", spec->gen.multiout.hp_out_nid[0]);
-	hda_nid_t *line_outs_ptr = NULL;
-	spec->gen.autocfg.line_outs = 1;
-	line_outs_ptr = spec->gen.autocfg.line_out_pins;
-	line_outs_ptr[0] = 0x10;
-	//hp_nid_ptr = spec->gen.multiout.hp_nid;
-	//hp_nid_ptr = 0x10;
-
-
-	// dig_out_nid
-	// spec->gen.multiout.dig_out_nid =0x00;
-	//printk("snd_hda_intel: auto config multiout is dig_out_nid 0x%02x\n", spec->gen.multiout.dig_out_nid);
-
-	//printk("snd_hda_intel: auto config pins hp_outs %d\n", spec->gen.autocfg.hp_outs);
-	//printk("snd_hda_intel: auto config pins hp_outs 0x%02x\n", spec->gen.autocfg.hp_pins[0]);
-
-	spec->gen.autocfg.hp_outs = 1;
-	hda_nid_t *hp_pins_ptr = NULL;
-	hp_pins_ptr = spec->gen.autocfg.hp_pins;
-	hp_pins_ptr[0] = 0x10;
-
-	//printk("snd_hda_intel: auto config pins hp_outs %d\n", spec->gen.autocfg.hp_outs);
-	//printk("snd_hda_intel: auto config pins hp_outs 0x%02x\n", spec->gen.autocfg.hp_pins[0]);
-	    	   
+	snd_hda_pick_fixup(codec, cs4208_models, cs4208_fixup_tbl,
+			   cs4208_fixups);
 	snd_hda_apply_fixup(codec, HDA_FIXUP_ACT_PRE_PROBE);
 
-	codec_dbg(codec, "playback info stream NULL\n");
-	info = spec->gen.pcm_rec[0];
-	if (info != NULL)
-	{
-		//printk("snd_hda_intel: pcm_rec[2] found");
-		hinfo = &(info->stream[SNDRV_PCM_STREAM_PLAYBACK]);
-		if (hinfo != NULL)
-			codec_dbg(codec, "playback info stream nid 0x%02x rates 0x%08x formats 0x%016llx\n",hinfo->nid,hinfo->rates,hinfo->formats);
-		else
-			codec_dbg(codec, "playback info stream NULL\n");
-	}
- 
+	snd_hda_override_wcaps(codec, 0x18,
+			       get_wcaps(codec, 0x18) | AC_WCAP_STEREO);
+	cs4208_fix_amp_caps(codec, 0x18);
+	cs4208_fix_amp_caps(codec, 0x1b);
+	cs4208_fix_amp_caps(codec, 0x1c);
+
+	err = cs_parse_auto_config(codec);
+	if (err < 0)
+		goto error;
+
+	snd_hda_apply_fixup(codec, HDA_FIXUP_ACT_PROBE);
+
 	return 0;
 
  error:
