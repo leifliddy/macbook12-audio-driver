@@ -27,7 +27,7 @@ tar --strip-components=3 -xvf $build_dir/linux-$kernel_version.tar.xz linux-$ker
 mv hda $hda_dir
 mv $hda_dir/Makefile $hda_dir/Makefile.orig
 mv $hda_dir/patch_cirrus.c $hda_dir/patch_cirrus.c.orig
-cp $patch_dir/Makefile $patch_dir/patch_cirrus.c $patch_dir/patch_cirrus_a1534.h $patch_dir/patch_cirrus_mb9_pre.h $patch_dir/patch_cirrus_mb9_post.h $hda_dir/
+cp $patch_dir/Makefile $patch_dir/patch_cirrus.c $patch_dir/patch_cirrus_a1534_setup.h $patch_dir/patch_cirrus_a1534_pcm.h $hda_dir/
 cd $hda_dir
 make
 make install

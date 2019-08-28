@@ -525,8 +525,7 @@ static void cs420x_fixup_gpio_23(struct hda_codec *codec,
 	}
 }
 
-#include "patch_cirrus_a1534.h"
-#include "patch_cirrus_mb9_pre.h"
+#include "patch_cirrus_a1534_setup.h"
 
 static const struct hda_fixup cs420x_fixups[] = {
 	[CS420X_MBP53] = {
@@ -775,8 +774,6 @@ static void cs4208_fix_amp_caps(struct hda_codec *codec, hda_nid_t adc)
 	caps |= 0x02;
 	snd_hda_override_amp_caps(codec, adc, HDA_INPUT, caps);
 }
-
-#include "patch_cirrus_mb9_post.h"
 
 static int patch_cs4208(struct hda_codec *codec)
 {
