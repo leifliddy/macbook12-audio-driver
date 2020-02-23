@@ -277,6 +277,8 @@ int cs_4208_build_pcms_explicit(struct hda_codec *codec)
 	//printk("snd_hda_intel: end cs_4208_build_pcms_explicit\n");
 	return retval;
 }
+
+/*
 void cs_4208_jack_unsol_event(struct hda_codec *codec, unsigned int res)
 {
 	struct hda_jack_tbl *event;
@@ -284,7 +286,7 @@ void cs_4208_jack_unsol_event(struct hda_codec *codec, unsigned int res)
 
 	dev_info(hda_codec_dev(codec), "cs_4208_jack_unsol_event 0x%08x tag 0x%02x\n",res,tag);
 
-	event = snd_hda_jack_tbl_get_from_tag(codec, tag);
+	event = snd_hda_jack_tbl_get_from_tag(codec, tag, 0);
         if (!event)
 		return;
 	event->jack_dirty = 1;
@@ -292,6 +294,7 @@ void cs_4208_jack_unsol_event(struct hda_codec *codec, unsigned int res)
 	//call_jack_callback(codec, event);
 	snd_hda_jack_report_sync(codec);
 }
+*/
 
 #define cs_4208_free            snd_hda_gen_free
 
@@ -317,7 +320,7 @@ static const struct hda_codec_ops cs_4208_patch_ops_explicit = {
 	.build_pcms = cs_4208_build_pcms_explicit,
 	.init = cs_4208_init_explicit,
 	.free = cs_4208_free_explicit,
-	.unsol_event = snd_hda_jack_unsol_event, //cs_4208_jack_unsol_event,
+	//.unsol_event = snd_hda_jack_unsol_event, //cs_4208_jack_unsol_event,
 //#ifdef UNDEF_CONFIG_PM
 //      .suspend = cs_4208_suspend,
 //      .resume = cs_4208_resume,
