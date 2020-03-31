@@ -66,4 +66,4 @@ Note: might be easier to just reboot
    **/etc/sudoers**   
    youruser ALL=(ALL) NOPASSWD: /usr/local/bin/switch.audio.driver.sh 
 
-   Note: **pulse.switch.audio.sh** works perfectly on Fedora 30. Had trouble getting it to work reliably on Ubuntu 19.04  
+   Note: **pulse.switch.audio.sh** works perfectly on Fedora 31. Had trouble getting it to work reliably on Ubuntu 19.04  
