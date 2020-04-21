@@ -40,12 +40,12 @@ struct cs_spec {
 			    struct snd_ctl_elem_value *ucontrol);
 	// new item to limit times we redo unmute/play
 
-	struct timespec last_play_time;
+	struct timespec64 last_play_time;
 	int play_init;
 	// record the first play time - we have a problem there
 	// some initial plays that I dont understand - so skip any setup
 	// till sometime after the first play
-	struct timespec first_play_time;
+	struct timespec64 first_play_time;
 	int playing;
 };
 

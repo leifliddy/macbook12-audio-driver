@@ -169,8 +169,8 @@ void cs_4208_playback_pcm_hook(struct hda_pcm_stream *hinfo, struct hda_codec *c
 		//if (!spec->play_init) {
 		if (1) {
 			//int power_chk = 0;
-			struct timespec curtim;
-			getnstimeofday(&curtim);
+			struct timespec64 curtim;
+			ktime_get_real_ts64(&curtim);
 			spec->first_play_time.tv_sec = curtim.tv_sec;
 			//cs_4208_play_setup(codec);
 			//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook BAD setup play called");
@@ -203,8 +203,8 @@ void cs_4208_playback_pcm_hook(struct hda_pcm_stream *hinfo, struct hda_codec *c
 
 		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook end");
 	} else if (action == HDA_GEN_PCM_ACT_PREPARE) {
-		struct timespec curtim;
-		getnstimeofday(&curtim);
+		struct timespec64 curtim;
+		ktime_get_real_ts64(&curtim);
 		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook BAD HOOK PREPARE init %d last %ld cur %ld",spec->play_init,spec->last_play_time.tv_sec,curtim.tv_sec);
 		//if (spec->play_init && curtim.tv_sec > (spec->first_play_time.tv_sec + 0))
 		//if (spec->play_init) {
