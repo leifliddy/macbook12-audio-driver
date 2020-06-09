@@ -5,13 +5,13 @@ static int cs_4208_playback_pcm_prepare(struct hda_pcm_stream *hinfo,
 					struct snd_pcm_substream *substream)
 {
 	struct cs_spec *spec = codec->spec;
-	codec_dbg(codec, "cs_4208_playback_pcm_prepare enter\n");
+	codec_dbg(codec, "cs_4208_playback_pcm_prepare start");
 	snd_hda_codec_setup_stream(codec, hinfo->nid, stream_tag, 0, format);
 
 	if (spec->gen.pcm_playback_hook)
 		spec->gen.pcm_playback_hook(hinfo, codec, substream, HDA_GEN_PCM_ACT_PREPARE);
 
-	codec_dbg(codec, "cs_4208_playback_pcm_prepare end\n");
+	codec_dbg(codec, "cs_4208_playback_pcm_prepare end");
 
 	return 0;
 }
@@ -21,9 +21,9 @@ static int cs_4208_playback_pcm_cleanup(struct hda_pcm_stream *hinfo,
 					struct snd_pcm_substream *substream)
 {
 	//struct cs_spec *spec = codec->spec;
-	codec_dbg(codec, "cs_4208_playback_pcm_cleanup enter\n");
+	codec_dbg(codec, "cs_4208_playback_pcm_cleanup start");
 	snd_hda_codec_cleanup_stream(codec, hinfo->nid);
-	codec_dbg(codec, "cs_4208_playback_pcm_cleanup exit\n");
+	codec_dbg(codec, "cs_4208_playback_pcm_cleanup end");
 
 	return 0;
 }
@@ -68,18 +68,18 @@ static int cs_4208_playback_pcm_open(struct hda_pcm_stream *hinfo,
 	int err;
 	int hp_pin_sense;
 	unsigned int hp_pin;
-	//printk("snd_hda_intel: playback_pcm_open hook");
+	codec_dbg(codec, "cs_4208_playback_pcm_open start");
 	codec_dbg(codec, "playback_pcm_open nid 0x%02x rates 0x%08x formats 0x%016llx\n",hinfo->nid,hinfo->rates,hinfo->formats);
 		hp_pin = 0x10; // HP pin is Node 0x10
 		//hp_pin_sense = snd_hda_jack_detect(codec, hp_pin);
                 hp_pin_sense = 0; //HP not working at the moment, disabling for now 
-		//printk("snd_hda_intel: hp_pin_sense: %d", hp_pin_sense);
+		//codec_dbg(codec, "cs_4208_playback_pcm_open hp_pin_sense: %d", hp_pin_sense);
 		//if (hp_pin_sense == 1) { // output to headphones
-			//printk("snd_hda_intel: playing to headphones");
+			//codec_dbg(codec, "cs_4208_playback_pcm_open playing to headphones");
 			//err = headphones_a1534(codec);
 		//}  else {
 		if (hp_pin_sense == 0) { // output to speakers
-			//printk("snd_hda_intel: playing to speakers");
+			//codec_dbg(codec, "cs_4208_playback_pcm_open playing to speakers");
 			err = play_a1534(codec);
 		}
 	
@@ -95,6 +95,7 @@ static int cs_4208_playback_pcm_open(struct hda_pcm_stream *hinfo,
 					//HDA_GEN_PCM_ACT_OPEN);
 	//}
 	//mutex_unlock(&gen_spec->pcm_mutex);
+	codec_dbg(codec, "cs_4208_playback_pcm_open end");
 	return 0;
 }
 
@@ -147,22 +148,23 @@ void cs_4208_playback_pcm_hook(struct hda_pcm_stream *hinfo, struct hda_codec *c
 	// It appears the 4208 setup can handle at least some differences in the stream format
 	// certainly seems to handle S24_LE or S32_LE differences
 
-
+	
 	if (action == HDA_GEN_PCM_ACT_OPEN) {
 		struct hda_cvt_setup *p = NULL;
-		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook open");
-        int hp_pin_sense;
-        unsigned int hp_pin;
-        int err;
+        	int hp_pin_sense;
+        	unsigned int hp_pin;
+        	int err;
+		codec_dbg(codec, "cs_4208_playback_pcm_hook HDA_GEN_PCM_ACT_OPEN start");
+
 		hp_pin = 0x10; // HP pin is Node 0x10
 		hp_pin_sense = snd_hda_jack_detect(codec, hp_pin);
-		//printk("snd_hda_intel: hp_pin_sense: %d", hp_pin_sense);
+		codec_dbg(codec, "cs_4208_playback_pcm_hook hp_pin_sense: %d", hp_pin_sense);
 		//hp_pin_sense = 0;
 		//if (hp_pin_sense == 1) { // output to headphones
-		//	printk("snd_hda_intel: playing to headphones");
+		//	codec_dbg(codec, "cs_4208_playback_pcm_hook playing to headphones");
 		//}
 		if (hp_pin_sense == 0) { // output to speakers
-			//printk("snd_hda_intel: playing to speakers");
+			//codec_dbg(codec, "cs_4208_playback_pcm_hook playing to speakers");
         		err = play_a1534(codec);
 		}
 
@@ -173,7 +175,7 @@ void cs_4208_playback_pcm_hook(struct hda_pcm_stream *hinfo, struct hda_codec *c
 			ktime_get_real_ts64(&curtim);
 			spec->first_play_time.tv_sec = curtim.tv_sec;
 			//cs_4208_play_setup(codec);
-			//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook BAD setup play called");
+			codec_dbg(codec, "cs_4208_playback_pcm_hook BAD setup play called");
 			spec->play_init = 1;
 			spec->playing = 0;
 		}
@@ -186,8 +188,7 @@ void cs_4208_playback_pcm_hook(struct hda_pcm_stream *hinfo, struct hda_codec *c
 		// this routine doesnt seem to be nid specific - so explicitly fix the known nids here
 
 		p = get_hda_cvt_setup_4208(codec, 0x02);
-
-		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook BAD cvt pointer 0x02 %p",p);
+		codec_dbg(codec, "cs_4208_playback_pcm_hook BAD cvt pointer 0x02 %p", p);
 
 		p->stream_tag = 0;
 		p->channel_id = 0;
@@ -195,54 +196,57 @@ void cs_4208_playback_pcm_hook(struct hda_pcm_stream *hinfo, struct hda_codec *c
 
 		p = get_hda_cvt_setup_4208(codec, 0x02);
 
-		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook BAD cvt pointer 0x03 %p",p);
+		codec_dbg(codec, "cs_4208_playback_pcm_hook BAD cvt pointer 0x03 %p", p);
 
 		p->stream_tag = 0;
 		p->channel_id = 0;
 		p->format_id = 0;
 
-		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook end");
+		codec_dbg(codec, "cs_4208_playback_pcm_hook HDA_GEN_PCM_ACT_OPEN end");
+
 	} else if (action == HDA_GEN_PCM_ACT_PREPARE) {
 		struct timespec64 curtim;
 		ktime_get_real_ts64(&curtim);
-		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook BAD HOOK PREPARE init %d last %ld cur %ld",spec->play_init,spec->last_play_time.tv_sec,curtim.tv_sec);
+		codec_dbg(codec, "cs_4208_playback_pcm_hook HDA_GEN_PCM_ACT_PREPARE start");
+		codec_dbg(codec, "cs_4208_playback_pcm_hook BAD HOOK PREPARE init %d last %lld cur %lld", spec->play_init,spec->last_play_time.tv_sec,curtim.tv_sec);
 		//if (spec->play_init && curtim.tv_sec > (spec->first_play_time.tv_sec + 0))
 		//if (spec->play_init) {
 		if (1) {
 			int power_chk = 0;
         		power_chk = snd_hda_codec_read(codec, codec->core.afg, 0, AC_VERB_GET_POWER_STATE, 0);
-			//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook BAD power check 0x01 2 %d", power_chk);
+			codec_dbg(codec, "cs_4208_playback_pcm_hook BAD power check 0x01 2 %d", power_chk); 
 			spec->last_play_time.tv_sec = curtim.tv_sec;
 			spec->playing = 1;
 		}
 
-		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook BAD HOOK PREPARE end");
+		codec_dbg(codec, "cs_4208_playback_pcm_hook HDA_GEN_PCM_ACT_PREPARE end");
 	} else if (action == HDA_GEN_PCM_ACT_CLEANUP) {
 		int power_chk = 0;
-		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook BAD HOOK CLEANUP");
+		codec_dbg(codec, "cs_4208_playback_pcm_hook HDA_GEN_PCM_ACT_CLEANUP start");
 		power_chk = snd_hda_codec_read(codec, codec->core.afg, 0, AC_VERB_GET_POWER_STATE, 0);
-		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook BAD power check 0x01 3 %d", power_chk);
+		codec_dbg(codec, "cs_4208_playback_pcm_hook BAD power check 0x01 3 %d", power_chk);
 		//if (spec->playing) {
 			//cs_4208_play_cleanup(codec);
-			printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook BAD done play down");
+			codec_dbg(codec, "cs_4208_playback_pcm_hook BAD done play down");
 			spec->playing = 0;
 		//}
 		//cs_4208_play_cleanup(codec);
 		power_chk = snd_hda_codec_read(codec, codec->core.afg, 0, AC_VERB_GET_POWER_STATE, 0);
-		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook BAD power check 0x01 4 %d", power_chk);
-		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook BAD HOOK CLEANUP end");
+		codec_dbg(codec, "cs_4208_playback_pcm_hook BAD power check 0x01 4 %d", power_chk);
+		codec_dbg(codec, "cs_4208_playback_pcm_hook HDA_GEN_PCM_ACT_CLEANUP end");
 	}
 	//} else if (action == HDA_GEN_PCM_ACT_CLOSE) {
-		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook close");
-		//printk("snd_hda_intel: command nid cs_4208_playback_pcm_hook end");
+		codec_dbg(codec, "cs_4208_playback_pcm_hook HDA_GEN_PCM_ACT_CLOSE start");
+		codec_dbg(codec, "cs_4208_playback_pcm_hook HDA_GEN_PCM_ACT_CLOSE end");
 	//}
+	codec_dbg(codec, "cs_4208_playback_pcm_hook end");
 
 }
 
 static int cs_4208_build_controls_explicit(struct hda_codec *codec)
 {
-	//printk("snd_hda_intel: cs_4208_build_controls_explicit\n");
-	//printk("snd_hda_intel: end cs_4208_build_controls_explicit\n");
+	codec_dbg(codec, "cs_4208_build_controls_explicit start");
+	codec_dbg(codec, "cs_4208_build_controls_explicit end");
 	return 0;
 }
 
@@ -254,7 +258,7 @@ int cs_4208_build_pcms_explicit(struct hda_codec *codec)
 	struct hda_gen_spec *gen_spec = &(spec->gen);
 	struct hda_pcm *info;
 
-        //printk("snd_hda_intel: cs_4208_build_pcms_explicit\n");
+	codec_dbg(codec, "cs_4208_build_pcms_explicit start");
 
 	//retval =  snd_hda_gen_build_pcms(codec);
 
@@ -274,7 +278,7 @@ int cs_4208_build_pcms_explicit(struct hda_codec *codec)
 
 	retval = 0;
 
-	//printk("snd_hda_intel: end cs_4208_build_pcms_explicit\n");
+	codec_dbg(codec, "cs_4208_build_pcms_explicit end");
 	return retval;
 }
 
@@ -301,10 +305,8 @@ void cs_4208_jack_unsol_event(struct hda_codec *codec, unsigned int res)
 static int cs_4208_init_explicit(struct hda_codec *codec)
 {
 	//struct cs_spec *spec = codec->spec;
-
-	//printk("snd_hda_intel: cs_4208_init_explicit enter\n");
-	//printk("snd_hda_intel: cs_4208_init snd_hda_gen_init NOT CALLED\n");
-	//printk("snd_hda_intel: cs_4208_init_explicit end\n");
+	codec_dbg(codec, "cs_4208_init_explicit start");
+	codec_dbg(codec, "cs_4208_init_explicit end");
 
 	return 0;
 }
