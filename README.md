@@ -31,7 +31,7 @@ git clone https://github.com/leifliddy/macbook12-audio-driver.git
 cd macbook12-audio-driver/
 ./install.cirrus.driver.sh
 reboot
-```python create 
+```
 
 At this point, the speakers should (hopefully) be working. You can stop here if you don't plan on using headphones.
 
@@ -55,7 +55,7 @@ sudo killall -9 pulseaudio
 sudo chmod +x /usr/bin/pulseaudio
 pulseaudio --start  # as normal user
 ```
-Note: might be easier to just reboot  python create 
+Note: might be easier to just reboot  
 
 
 **Use provided support scripts to switch between the speaker and headphone driver**  
