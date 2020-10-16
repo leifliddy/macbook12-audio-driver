@@ -7,11 +7,10 @@ major_minor=${major_version}${minor_version}
 
 build_dir='build'
 update_dir="/lib/modules/$(uname -r)/updates"
-[[ ! -d $update_dir ]] && mkdir $update_dir
-
 patch_dir='patch_cirrus'
 hda_dir="$build_dir/hda-$kernel_version"
 
+[[ ! -d $update_dir ]] && mkdir $update_dir
 [[ ! -d $build_dir ]] && mkdir $build_dir
 [[ -d $hda_dir ]] && rm -rf $hda_dir
 

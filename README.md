@@ -21,6 +21,10 @@ dnf install wget symlinks make gcc kernel-devel
 ```
 apt install wget symlinks make gcc linux-headers-generic
 ```
+**arch package install**  
+```
+pacman -S wget symlinks make gcc linux-headers
+```
 **build driver**  
 ```
 git clone https://github.com/leifliddy/macbook12-audio-driver.git  
