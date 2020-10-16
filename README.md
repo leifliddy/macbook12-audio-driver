@@ -1,6 +1,6 @@
 Work in progress audio driver for 12" MacBooks (2015 and later) that's largely based on davidjo's [snd_hda_macbookpro](https://github.com/davidjo/snd_hda_macbookpro)  
 
-Driver builds successfully on kernels 5.0 to 5.6 (haven't tested on earlier kernels)  
+Driver builds successfully on kernels 5.0 to 5.8 (haven't tested on earlier kernels)  
 At this time, only the speakers work with this driver (no wired headphone support)  
 In order to use wired headphones, you must switch between this driver and the stock kernel driver  
 
@@ -31,7 +31,7 @@ git clone https://github.com/leifliddy/macbook12-audio-driver.git
 cd macbook12-audio-driver/
 ./install.cirrus.driver.sh
 reboot
-```
+```python create 
 
 At this point, the speakers should (hopefully) be working. You can stop here if you don't plan on using headphones.
 
@@ -55,7 +55,7 @@ sudo killall -9 pulseaudio
 sudo chmod +x /usr/bin/pulseaudio
 pulseaudio --start  # as normal user
 ```
-Note: might be easier to just reboot  
+Note: might be easier to just reboot  python create 
 
 
 **Use provided support scripts to switch between the speaker and headphone driver**  
