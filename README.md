@@ -1,6 +1,6 @@
-Work in progress audio driver for 12" MacBooks (2016 and later) that's largely based on davidjo's [snd_hda_macbookpro](https://github.com/davidjo/snd_hda_macbookpro)  
+Work in progress audio driver for 12" MacBook (2016) that's largely based on davidjo's [snd_hda_macbookpro](https://github.com/davidjo/snd_hda_macbookpro)  
 
-Driver builds successfully on kernels 5.0 to 5.8 (haven't tested on earlier kernels)  
+Driver builds successfully on kernels 5.0 to 5.9 (haven't tested on earlier kernels)  
 At this time, only the speakers work with this driver (no wired headphone support)  
 In order to use wired headphones, you must switch between this driver and the stock kernel driver  
 
