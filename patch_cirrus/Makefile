@@ -3,6 +3,8 @@ obj-$(CONFIG_SND_HDA_CODEC_CIRRUS) += snd-hda-codec-cirrus.o
 
 all:
 	make -C /lib/modules/$(shell uname -r)/build M=$(shell pwd) modules
+	strip --strip-debug snd-hda-codec-cirrus.ko
+
 clean:
 	make -C /lib/modules/$(shell uname -r)/build M=$(shell pwd) clean
 
