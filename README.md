@@ -29,6 +29,7 @@ pacman -S wget symlinks make gcc linux-headers
 ```
 git clone https://github.com/leifliddy/macbook12-audio-driver.git  
 cd macbook12-audio-driver/
+# run the following command as root or with sudo
 ./install.cirrus.driver.sh
 reboot
 ```
