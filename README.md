@@ -1,7 +1,7 @@
 Work in progress audio driver for the 12" MacBook9,1 (2016) and Macbook10,1 (2017) that's largely based on davidjo's [snd_hda_macbookpro](https://github.com/davidjo/snd_hda_macbookpro)  
 Note: the Macbook8,1 (2015) is not supported. 
 
-Driver builds successfully on kernels 5.0 to 5.15 (haven't tested on earlier kernels)  
+Driver builds successfully on kernels 5.0 to 5.16 (haven't tested on earlier kernels)  
 At this time, only the speakers work with this driver (no wired headphone support)  
 In order to use wired headphones, you must switch between this driver and the stock kernel driver  
 
