@@ -10,7 +10,6 @@ cirrus_active="$update_dir/snd-hda-codec-cirrus.ko"  				#active module (symlink
 speaker_module_active=$(readlink -f $cirrus_active | grep '_speaker$')
 
 reload_driver() {
-   symlinks -c $update_dir &> /dev/null		# relative path links are easier to follow 
    depmod -a
    killall alsactl &> /dev/null
    modprobe -r snd_hda_intel
@@ -25,10 +24,10 @@ reload_driver() {
 if [[ $speaker_module_active ]]; then
    echo 'switching to headphones'
    #echo '**if volume seems low, use alsa mixer to increase master volume for HDA Intel PCH card'
-   ln -sf $cirrus_headphones $cirrus_active
+   ln -srf $cirrus_headphones $cirrus_active
    reload_driver
 else
    echo 'switching to speakers'
-   ln -sf $cirrus_speaker $cirrus_active
+   ln -srf $cirrus_speaker $cirrus_active
    reload_driver
 fi
