@@ -20,24 +20,24 @@ dnf install dkms gcc kernel-devel make wget
 ```
 **ubuntu package install**
 ```
-apt install gcc linux-headers-generic make wget
+apt install dkms gcc linux-headers-generic make wget
 ```
 **arch package install**
 ```
-pacman -S gcc make linux-headers wget
+pacman -S dkms gcc linux-headers make wget
 ```
 1. **build and install dkms module** (experimental feature)  
 this will build the module for the current/active kernel  
-and "should" auto-compile this module whenever you install a newer kernel  
+and will auto-compile this module whenever you install a newer kernel  
 ```
 git clone https://github.com/leifliddy/macbook12-audio-driver.git
 cd macbook12-audio-driver/
 # run the following command as root or with sudo
-./install.dkms.sh
+./install.cirrus.driver.sh -i
 reboot
 
 # to uninstall the dkms feature run:
-./install.dkms.sh -u
+./install.cirrus.driver.sh -u
 ```
 
 2. (backup method if dkms didn't work) **manually build and install module for current kernel**
