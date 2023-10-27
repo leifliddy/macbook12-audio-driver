@@ -1,18 +1,19 @@
-ifneq ($(KERNELRELEASE),)
-	KERNELDIR ?= /lib/modules/$(KERNELRELEASE)/build
+ifdef KERNELRELEASE
+	KERNELDIR := /lib/modules/$(KERNELRELEASE)
 else
-	## KERNELRELEASE not set.
-	KERNELDIR ?= /lib/modules/$(shell uname -r)/build
+	KERNELDIR := /lib/modules/$(shell uname -r)
 endif
 
+KERNELBUILD := $(KERNELDIR)/build
+
 all:
-	make -C $(KERNELDIR) M=$(shell pwd)/build/hda modules
+	make -C $(KERNELBUILD) M=$(shell pwd)/build/hda modules
 
 clean:
-	make -C $(KERNELDIR) M=$(shell pwd)/build/hda clean
-	
-ifeq ($(KERNELRELEASE),)
+	make -C $(KERNELBUILD) M=$(shell pwd)/build/hda clean
+
+ifndef KERNELRELEASE
 install:
-	cp $(shell pwd)/build/hda/snd-hda-codec-cirrus.ko /lib/modules/$(shell uname -r)/updates
+	cp $(shell pwd)/build/hda/snd-hda-codec-cirrus.ko $(KERNELDIR)/updates
 	depmod -a
 endif

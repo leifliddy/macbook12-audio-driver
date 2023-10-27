@@ -1,7 +1,27 @@
 #!/bin/bash
-[[ -n $1 ]] && dkms=true
-[[ $dkms = true ]] && uname_r=$1 || uname_r=$(uname -r)
 
+while [ $# -gt 0 ]
+do
+    case $1 in
+    -i|--install) dkms_action='install';;
+    -k|--kernel) dkms_kernel=$2; [[ -z $dkms_kernel ]] && echo '-k|--kernel must be followed by a kernel version' && exit 1;;
+    -r|--remove) dkms_action='remove';;
+    -u|--uninstall) dkms_action='remove';;
+    (-*) echo "$0: error - unrecognized option $1" 1>&2; exit 1;;
+    (*) break;;
+    esac
+    shift
+done
+
+if [[ $dkms_action == 'install' ]]; then
+    bash dkms.sh
+    exit
+elif [[ $dkms_action == 'remove' ]]; then
+    bash dkms.sh -r
+    exit
+fi
+
+[[ -n $dkms_kernel ]] && uname_r=$dkms_kernel || uname_r=$(uname -r)
 kernel_version=$(echo $uname_r | cut -d '-' -f1) #ie 6.4.15
 
 major_version=$(echo $kernel_version | cut -d '.' -f1)
@@ -30,8 +50,7 @@ fi
 # remove old kernel tar.xz archives
 find build/ -type f | grep -E linux.*.tar.xz | grep -v $kernel_version.tar.xz | xargs rm -f
 
-tar --strip-components=3 -xvf $build_dir/linux-$kernel_version.tar.xz linux-$kernel_version/sound/pci/hda --directory=build/
-mv hda $hda_dir
+tar --strip-components=3 -xvf $build_dir/linux-$kernel_version.tar.xz --directory=build/ linux-$kernel_version/sound/pci/hda
 mv $hda_dir/Makefile $hda_dir/Makefile.orig
 mv $hda_dir/patch_cirrus.c $hda_dir/patch_cirrus.c.orig
 cp $patch_dir/Makefile $patch_dir/patch_cirrus.c $patch_dir/patch_cirrus_a1534_setup.h $patch_dir/patch_cirrus_a1534_pcm.h $hda_dir/
@@ -46,11 +65,9 @@ if [ $major_minor -lt 56 ]; then
    sed -i 's/ktime_get_real_ts64/getnstimeofday/' $hda_dir/patch_cirrus_a1534_pcm.h
 fi
 
-if [[ -z $dkms ]]; then
-    update_dir="/lib/modules/$(uname -r)/updates"
-    [[ ! -d $update_dir ]] && mkdir $update_dir
-    make
-    make install
-    echo -e "\ncontents of $update_dir"
-    ls -lA $update_dir
-fi
+update_dir="/lib/modules/$(uname -r)/updates"
+[[ ! -d $update_dir ]] && mkdir $update_dir
+make
+make install
+echo -e "\ncontents of $update_dir"
+ls -lA $update_dir
