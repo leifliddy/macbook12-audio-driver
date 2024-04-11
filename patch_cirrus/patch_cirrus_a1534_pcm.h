@@ -120,7 +120,7 @@ static void cs_4208_fill_pcm_stream_name(char *str, size_t len, const char *sfx,
 
 	if (*str)
 		return;
-	strlcpy(str, chip_name, len);
+	strscpy(str, chip_name, len);
 
 	/* drop non-alnum chars after a space */
 	for (p = strchr(str, ' '); p; p = strchr(p + 1, ' ')) {
@@ -129,7 +129,7 @@ static void cs_4208_fill_pcm_stream_name(char *str, size_t len, const char *sfx,
 			break;
 		}
 	}
-	strlcat(str, sfx, len);
+	strscpy(str, sfx, len);
 }
 
 void cs_4208_playback_pcm_hook(struct hda_pcm_stream *hinfo, struct hda_codec *codec, struct snd_pcm_substream *substream, int action)
