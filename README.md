@@ -7,10 +7,6 @@ Note: the Macbook8,1 (2015) is not supported
 **Kernels supported**:
 \>= 5.0
 
-Only the speakers work with this driver (no wired headphone support)  
-However, the stock kernel driver supports wired headphones  
-So in order to use wired headphones, you must remove the module that this project creates and reboot  
-
 Compiling and installing driver:
 -------------
 
