@@ -55,6 +55,16 @@ mv $hda_dir/Makefile $hda_dir/Makefile.orig
 mv $hda_dir/patch_cirrus.c $hda_dir/patch_cirrus.c.orig
 cp $patch_dir/Makefile $patch_dir/patch_cirrus.c $patch_dir/patch_cirrus_a1534_setup.h $patch_dir/patch_cirrus_a1534_pcm.h $hda_dir/
 
+# if kernel version is >= 6.12 then change
+# snd_pci_quirk to hda_quirk
+# SND_PCI_QUIRK to HDA_CODEC_QUIRK
+# but leave alone SND_PCI_QUIRK_VENDOR
+
+if (( major_version > 6 || (major_version == 6 && minor_version >= 12) )); then
+   sed -i 's/snd_pci_quirk/hda_quirk/' $hda_dir/patch_cirrus.c
+   sed -i 's/SND_PCI_QUIRK\b/HDA_CODEC_QUIRK/' $hda_dir/patch_cirrus.c
+fi
+
 # if kernel version is < 5.6 then change
 # timespec64 to timespec
 # ktime_get_real_ts64 to getnstimeofday
