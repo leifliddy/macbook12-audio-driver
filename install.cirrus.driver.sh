@@ -65,6 +65,10 @@ if (( major_version > 6 || (major_version == 6 && minor_version >= 12) )); then
    sed -i 's/SND_PCI_QUIRK\b/HDA_CODEC_QUIRK/' $hda_dir/patch_cirrus.c
 fi
 
+if (( major_version == 6 && minor_version <= 11 )); then
+   sed -i 's/hda_quirk/snd_pci_quirk/' $hda_dir/patch_cirrus.c
+fi
+
 # if kernel version is < 5.6 then change
 # timespec64 to timespec
 # ktime_get_real_ts64 to getnstimeofday
