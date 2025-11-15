@@ -97,6 +97,9 @@ fi
 
 update_dir="/lib/modules/$(uname -r)/updates"
 [[ ! -d $update_dir ]] && mkdir $update_dir
+if ((${#dkms_kernel[@]})); then
+    cp $makefile_name Makefile
+fi
 make -f $makefile_name
 make -f $makefile_name install
 echo -e "\ncontents of $update_dir"
