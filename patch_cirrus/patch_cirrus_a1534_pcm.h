@@ -245,7 +245,17 @@ void cs_4208_playback_pcm_hook(struct hda_pcm_stream *hinfo, struct hda_codec *c
 
 static int cs_4208_build_controls_explicit(struct hda_codec *codec)
 {
+	int retval;
 	codec_dbg(codec, "cs_4208_build_controls_explicit start");
+
+	// Without this, no capture / mic mixer controls get created, ALSA never
+	// selects an ADC for input, so the capture stream stays silent. We let
+	// the generic builder create the standard set; speaker output still goes
+	// through our custom playback PCM regardless.
+	retval = snd_hda_gen_build_controls(codec);
+	if (retval < 0)
+		return retval;
+
 	codec_dbg(codec, "cs_4208_build_controls_explicit end");
 	return 0;
 }
@@ -260,23 +270,26 @@ int cs_4208_build_pcms_explicit(struct hda_codec *codec)
 
 	codec_dbg(codec, "cs_4208_build_pcms_explicit start");
 
-	//retval =  snd_hda_gen_build_pcms(codec);
+	// Let the generic builder set up everything (including the capture stream
+	// for the internal/external mic). Without this we get no capture device
+	// at all — speakers may work but mic is dead. We then override only the
+	// analog playback stream below with the leifliddy custom config.
+	retval = snd_hda_gen_build_pcms(codec);
+	if (retval < 0)
+		return retval;
 
 	cs_4208_fill_pcm_stream_name(gen_spec->stream_name_analog,
 					sizeof(gen_spec->stream_name_analog),
 					" Analog", codec->core.chip_name);
-	info = snd_hda_codec_pcm_new(codec, "%s", gen_spec->stream_name_analog);
+	info = gen_spec->pcm_rec[0];
 	if (!info)
 		return -ENOMEM;
-	gen_spec->pcm_rec[0] = info;
 
 	info->stream[SNDRV_PCM_STREAM_PLAYBACK] = cs4208_pcm_analog_playback;
 	info->stream[SNDRV_PCM_STREAM_PLAYBACK].nid = 0x04; // 0x04 is for speakers 0x02 is for headphones
 	info->stream[SNDRV_PCM_STREAM_PLAYBACK].channels_max = 4;
 
 	info->pcm_type = HDA_PCM_TYPE_AUDIO;
-
-	retval = 0;
 
 	codec_dbg(codec, "cs_4208_build_pcms_explicit end");
 	return retval;
@@ -304,10 +317,18 @@ void cs_4208_jack_unsol_event(struct hda_codec *codec, unsigned int res)
 
 static int cs_4208_init_explicit(struct hda_codec *codec)
 {
-	//struct cs_spec *spec = codec->spec;
+	int retval;
 	codec_dbg(codec, "cs_4208_init_explicit start");
-	codec_dbg(codec, "cs_4208_init_explicit end");
 
+	// Without calling the generic init, the codec's input path (ADC mux
+	// selection, mic pin enables, capture amp defaults) never gets set up,
+	// so even with capture controls present recording stays silent.
+	// snd_hda_gen_init configures all input/output paths from the auto-config.
+	retval = snd_hda_gen_init(codec);
+	if (retval < 0)
+		return retval;
+
+	codec_dbg(codec, "cs_4208_init_explicit end");
 	return 0;
 }
 
