@@ -96,7 +96,7 @@ void snd_hda_coef_item(struct hda_codec *codec, u16 write_flag, hda_nid_t nid, u
         }
 }
 
-/* reserved for future use
+/* re-enabled: headphone output path, called on jack-detect from pcm_open */
 static int headphones_a1534 (struct hda_codec *codec) {
 	int retval;
 	codec_dbg(codec, "headphones_a1534 start");
@@ -300,7 +300,7 @@ static int headphones_a1534 (struct hda_codec *codec) {
  //       { 1, CS4208_VENDOR_NID, 0x0035, 0x0000, 0x00000000 }, //   coef write 168
         snd_hda_coef_item(codec, 1, CS4208_VENDOR_NID, 0x0035, 0x0000, 0x00000000, 169 ); //   coef write 169
 
-        snd_hda_codec_write(codec, 0x02, 0, AC_VERB_SET_STREAM_FORMAT, 0x00004031); // 0x00224031
+        snd_hda_codec_write(codec, 0x02, 0, AC_VERB_SET_STREAM_FORMAT, 0x00004011); // was 0x4031 (24-bit): forced to 0x4011 (16-bit) to match Linux S16_LE stream
 //       snd_hda:     stream format 2 [('CHAN', 2), ('RATE', 44100), ('BITS', 24), ('RATE_MUL', 1), ('RATE_DIV', 1)]
 
         retval = snd_hda_codec_read_check(codec, 0x02, 0, AC_VERB_GET_POWER_STATE, 0x00000000, 0x00000033, 174); // 0x002f0500
@@ -387,7 +387,7 @@ static int headphones_a1534 (struct hda_codec *codec) {
  //       { 1, CS4208_VENDOR_NID, 0x0035, 0x0000, 0x00000000 }, //   coef write 210
         snd_hda_coef_item(codec, 1, CS4208_VENDOR_NID, 0x0035, 0x0000, 0x00000000, 211 ); //   coef write 211
 
-        snd_hda_codec_write(codec, 0x02, 0, AC_VERB_SET_STREAM_FORMAT, 0x00004031); // 0x00224031
+        snd_hda_codec_write(codec, 0x02, 0, AC_VERB_SET_STREAM_FORMAT, 0x00004011); // was 0x4031 (24-bit): forced to 0x4011 (16-bit) to match Linux S16_LE stream
 //       snd_hda:     stream format 2 [('CHAN', 2), ('RATE', 44100), ('BITS', 24), ('RATE_MUL', 1), ('RATE_DIV', 1)]
 
 
@@ -499,7 +499,7 @@ static int headphones_a1534 (struct hda_codec *codec) {
  //       { 1, CS4208_VENDOR_NID, 0x0035, 0x0000, 0x00000000 }, //   coef write 292
         snd_hda_coef_item(codec, 1, CS4208_VENDOR_NID, 0x0035, 0x0000, 0x00000000, 293 ); //   coef write 293
 
-        snd_hda_codec_write(codec, 0x02, 0, AC_VERB_SET_STREAM_FORMAT, 0x00004031); // 0x00224031
+        snd_hda_codec_write(codec, 0x02, 0, AC_VERB_SET_STREAM_FORMAT, 0x00004011); // was 0x4031 (24-bit): forced to 0x4011 (16-bit) to match Linux S16_LE stream
 //       snd_hda:     stream format 2 [('CHAN', 2), ('RATE', 44100), ('BITS', 24), ('RATE_MUL', 1), ('RATE_DIV', 1)]
 
         retval = snd_hda_codec_read_check(codec, 0x02, 0, AC_VERB_GET_POWER_STATE, 0x00000000, 0x00000030, 298); // 0x002f0500
@@ -619,7 +619,6 @@ static int headphones_a1534 (struct hda_codec *codec) {
 	codec_dbg(codec, "headphones_a1534 end");
 	return 0;
 }
-*/
 
 static int setup_a1534 (struct hda_codec *codec) {
 	int retval;
