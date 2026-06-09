@@ -1,3 +1,14 @@
+/* ---- CS4208 live headphone<->speaker auto-switch state ----
+ * The captured macOS sequences (play_a1534 / headphones_a1534) only get run at
+ * PCM-open time. To switch a *running* stream when the jack is plugged/unplugged
+ * we cache the live stream tag+format here and re-point the DMA stream onto the
+ * correct converter from the unsolicited jack handler below. */
+static unsigned int cs4208_cur_stream_tag;	/* running PCM stream tag (0 = none) */
+static unsigned int cs4208_cur_format;		/* running PCM HDA format word */
+static int cs4208_cur_hp = -1;			/* last HP jack state (-1 = unknown) */
+/* cs_4208_hp_jack_callback is defined further down, after get_hda_cvt_setup_4208,
+ * which it needs to invalidate the converter format cache. */
+
 static int cs_4208_playback_pcm_prepare(struct hda_pcm_stream *hinfo,
 					struct hda_codec *codec,
 					unsigned int stream_tag,
@@ -6,6 +17,8 @@ static int cs_4208_playback_pcm_prepare(struct hda_pcm_stream *hinfo,
 {
 	struct cs_spec *spec = codec->spec;
 	codec_dbg(codec, "cs_4208_playback_pcm_prepare start");
+	cs4208_cur_stream_tag = stream_tag;	/* cache for live jack re-pointing */
+	cs4208_cur_format = format;
 	snd_hda_codec_setup_stream(codec, hinfo->nid, stream_tag, 0, format);
 
 	if (spec->gen.pcm_playback_hook)
@@ -22,6 +35,7 @@ static int cs_4208_playback_pcm_cleanup(struct hda_pcm_stream *hinfo,
 {
 	//struct cs_spec *spec = codec->spec;
 	codec_dbg(codec, "cs_4208_playback_pcm_cleanup start");
+	cs4208_cur_stream_tag = 0;	/* no running stream to re-point on jack change */
 	snd_hda_codec_cleanup_stream(codec, hinfo->nid);
 	codec_dbg(codec, "cs_4208_playback_pcm_cleanup end");
 
@@ -71,15 +85,16 @@ static int cs_4208_playback_pcm_open(struct hda_pcm_stream *hinfo,
 	codec_dbg(codec, "cs_4208_playback_pcm_open start");
 	codec_dbg(codec, "playback_pcm_open nid 0x%02x rates 0x%08x formats 0x%016llx\n",hinfo->nid,hinfo->rates,hinfo->formats);
 		hp_pin = 0x10; // HP pin is Node 0x10
-		//hp_pin_sense = snd_hda_jack_detect(codec, hp_pin);
-                hp_pin_sense = 0; //HP not working at the moment, disabling for now 
-		//codec_dbg(codec, "cs_4208_playback_pcm_open hp_pin_sense: %d", hp_pin_sense);
-		//if (hp_pin_sense == 1) { // output to headphones
-			//codec_dbg(codec, "cs_4208_playback_pcm_open playing to headphones");
-			//err = headphones_a1534(codec);
-		//}  else {
-		if (hp_pin_sense == 0) { // output to speakers
-			//codec_dbg(codec, "cs_4208_playback_pcm_open playing to speakers");
+		hp_pin_sense = snd_hda_jack_detect(codec, hp_pin);
+		cs4208_cur_hp = hp_pin_sense; // keep jack-callback in sync with open-path routing
+		codec_dbg(codec, "cs_4208_playback_pcm_open hp_pin_sense: %d", hp_pin_sense);
+		if (hp_pin_sense) { // output to headphones
+			codec_dbg(codec, "cs_4208_playback_pcm_open playing to headphones");
+			hinfo->nid = 0x02; // headphone converter (DAC) -> HP pin 0x10
+			err = headphones_a1534(codec);
+		} else { // output to speakers
+			codec_dbg(codec, "cs_4208_playback_pcm_open playing to speakers");
+			hinfo->nid = 0x04; // speaker converter (DAC) -> speaker pin 0x1d
 			err = play_a1534(codec);
 		}
 	
@@ -315,6 +330,51 @@ void cs_4208_jack_unsol_event(struct hda_codec *codec, unsigned int res)
 
 #define cs_4208_free            snd_hda_gen_free
 
+/* Unsolicited HP-jack handler: re-route speaker<->headphone for a *running*
+ * stream. Defined here (not at the top) because it needs get_hda_cvt_setup_4208
+ * to invalidate the converter format cache before re-pointing the stream. */
+static void cs_4208_hp_jack_callback(struct hda_codec *codec,
+				     struct hda_jack_callback *cb)
+{
+	struct hda_cvt_setup *p;
+	int hp = snd_hda_jack_detect(codec, 0x10);
+
+	codec_dbg(codec, "cs_4208_hp_jack_callback hp=%d (prev=%d) tag=%u",
+		  hp, cs4208_cur_hp, cs4208_cur_stream_tag);
+	if (hp == cs4208_cur_hp)
+		return;
+	cs4208_cur_hp = hp;
+
+	if (hp) {				/* headphones plugged */
+		headphones_a1534(codec);
+		if (cs4208_cur_stream_tag) {
+			/* Invalidate the cached converter setup so setup_stream
+			 * actually reprograms the live format - otherwise 0x02
+			 * keeps headphones_a1534()'s hardcoded format and plays
+			 * loud garbage until PipeWire's own reopen fixes it. */
+			p = get_hda_cvt_setup_4208(codec, 0x02);
+			p->stream_tag = 0; p->channel_id = 0; p->format_id = 0;
+			snd_hda_codec_setup_stream(codec, 0x02,
+						   cs4208_cur_stream_tag, 0,
+						   cs4208_cur_format);
+		}
+		/* Silence the speaker by disabling its output pin (0x1d) without
+		 * touching the converters/stream the headphones now use.
+		 * play_a1534() re-enables 0x1d on the way back to speakers. */
+		snd_hda_codec_write(codec, 0x1d, 0,
+				    AC_VERB_SET_PIN_WIDGET_CONTROL, 0x00);
+	} else {				/* back to speakers */
+		play_a1534(codec);
+		if (cs4208_cur_stream_tag) {
+			p = get_hda_cvt_setup_4208(codec, 0x04);
+			p->stream_tag = 0; p->channel_id = 0; p->format_id = 0;
+			snd_hda_codec_setup_stream(codec, 0x04,
+						   cs4208_cur_stream_tag, 0,
+						   cs4208_cur_format);
+		}
+	}
+}
+
 static int cs_4208_init_explicit(struct hda_codec *codec)
 {
 	int retval;
@@ -327,6 +387,11 @@ static int cs_4208_init_explicit(struct hda_codec *codec)
 	retval = snd_hda_gen_init(codec);
 	if (retval < 0)
 		return retval;
+
+	/* Enable live speaker<->headphone switching: fire cs_4208_hp_jack_callback
+	 * on every plug/unplug interrupt from the HP pin (0x10). */
+	cs4208_cur_hp = -1;
+	snd_hda_jack_detect_enable_callback(codec, 0x10, cs_4208_hp_jack_callback);
 
 	codec_dbg(codec, "cs_4208_init_explicit end");
 	return 0;
@@ -343,7 +408,7 @@ static const struct hda_codec_ops cs_4208_patch_ops_explicit = {
 	.build_pcms = cs_4208_build_pcms_explicit,
 	.init = cs_4208_init_explicit,
 	.free = cs_4208_free_explicit,
-	//.unsol_event = snd_hda_jack_unsol_event, //cs_4208_jack_unsol_event,
+	.unsol_event = snd_hda_jack_unsol_event,
 //#ifdef UNDEF_CONFIG_PM
 //      .suspend = cs_4208_suspend,
 //      .resume = cs_4208_resume,
