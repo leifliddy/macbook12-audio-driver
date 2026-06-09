@@ -20,19 +20,6 @@ and forked from leifliddy's [macbook12-audio-driver](https://github.com/leiflidd
 - Volume control — needs one extra config step, see [Speaker volume](#3-speaker-volume-required)
 - Internal microphone
 
-## What this fork adds over upstream
-
-Upstream is **speaker-only** — the headphone path was present but commented out
-as "reserved for future use." This fork makes headphones actually work:
-
-- **Re-enables the headphone output path** (`headphones_a1534`).
-- **Routes from the live headphone-jack sense** instead of always selecting the
-  speakers.
-- **Switches a *running* stream on both plug and unplug** by handling the
-  codec's unsolicited jack interrupt — not only when a new stream opens.
-- **Fixes loud/distorted headphone audio** when plugging in during playback: the
-  headphone converter was programmed for 24-bit while the stream is 16-bit.
-
 ## Supported hardware & kernels
 
 |               |                                                       |
