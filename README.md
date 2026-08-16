@@ -9,8 +9,7 @@ the built-in speakers stay silent. This module replays the initialization the
 codec needs (reverse-engineered from macOS) and adds proper headphone/speaker
 routing on top.
 
-Based on davidjo's [snd_hda_macbookpro](https://github.com/davidjo/snd_hda_macbookpro)
-and forked from leifliddy's [macbook12-audio-driver](https://github.com/leifliddy/macbook12-audio-driver).
+Based on davidjo's [snd_hda_macbookpro](https://github.com/davidjo/snd_hda_macbookpro).
 
 ## What works
 
@@ -35,15 +34,15 @@ and forked from leifliddy's [macbook12-audio-driver](https://github.com/leiflidd
 
 **Ubuntu / elementary / Debian**
 ```bash
-sudo apt install dkms gcc make git wget linux-headers-$(uname -r)
+sudo apt install curl dkms gcc make git linux-headers-$(uname -r)
 ```
 **Fedora**
 ```bash
-sudo dnf install dkms gcc make git wget kernel-devel
+sudo dnf install curl dkms gcc make git kernel-devel
 ```
 **Arch**
 ```bash
-sudo pacman -S dkms gcc make git wget linux-headers
+sudo pacman -S curl dkms gcc make git linux-headers
 ```
 
 ### 2. Build & install the module (DKMS — recommended)
@@ -52,20 +51,21 @@ DKMS rebuilds the module automatically whenever you install a new kernel, so
 audio keeps working across kernel updates.
 
 ```bash
-git clone https://github.com/breitburg/macbook12-audio-driver.git
+git clone https://github.com/leifliddy/macbook12-audio-driver.git
 cd macbook12-audio-driver
 sudo ./install.cirrus.driver.sh -i
 sudo reboot
 ```
 
 > [!NOTE]
-> The build downloads the matching kernel source tarball to obtain the
-> HD-audio codec headers, so **an internet connection is required at build
-> time** — including when DKMS rebuilds after a kernel update.
+> The first build for each upstream kernel downloads its matching source
+> tarball to obtain the HD-audio codec headers. The tarball is verified against
+> kernel.org's SHA-256 list and cached under
+> `/var/cache/macbook12-audio-driver` for later rebuilds.
 
 > [!IMPORTANT]
-> Keep the cloned directory in place. The DKMS install links to it, and removing
-> it will break the automatic rebuild on the next kernel update.
+> DKMS receives its own source copy under `/usr/src`, so the cloned directory
+> can be removed after installation.
 
 To uninstall:
 ```bash
@@ -76,7 +76,7 @@ sudo ./install.cirrus.driver.sh -u
 <summary>Manual build (fallback — does <b>not</b> survive kernel updates)</summary>
 
 ```bash
-git clone https://github.com/breitburg/macbook12-audio-driver.git
+git clone https://github.com/leifliddy/macbook12-audio-driver.git
 cd macbook12-audio-driver
 sudo ./install.cirrus.driver.sh
 sudo reboot
