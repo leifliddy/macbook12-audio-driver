@@ -401,6 +401,34 @@ static void cs_4208_free_explicit(struct hda_codec *codec)
 	kfree(codec->spec);
 }
 
+static int cs_4208_resume(struct hda_codec *codec)
+{
+	int err;
+
+	/* The A1534 speaker amplifiers behind vendor widget 0x24 lose their
+	 * configuration across a system sleep.  With no .resume callback the
+	 * core only re-runs init + regmap sync, which restores the codec but
+	 * not the amps, leaving the speakers silent until the next module
+	 * probe (i.e. reboot).  Replay the probe-time amp bring-up first,
+	 * mirroring the boot order of cs4208_probe().
+	 *
+	 * Runtime resume from power_save idle does not drop amp power, so
+	 * skip the ~1000-verb replay there: power_state is PMSG_ON during a
+	 * plain runtime resume and PMSG_RESUME/RESTORE after S3/S4 (also for
+	 * a deferred first wake after sleep, via hda_codec_pm_complete()). */
+	if (codec->core.dev.power.power_state.event != PM_EVENT_ON) {
+		setup_a1534(codec);
+		play_a1534(codec);
+	}
+
+	err = cs_4208_init_explicit(codec);
+	if (err < 0)
+		return err;
+
+	snd_hda_regmap_sync(codec);
+	return 0;
+}
+
 // real def is CONFIG_PM
 static const struct hda_codec_ops cs_4208_patch_ops_explicit = {
 	.build_controls = cs_4208_build_controls_explicit,
@@ -412,8 +440,5 @@ static const struct hda_codec_ops cs_4208_patch_ops_explicit = {
 	 * stream callback so capture wakes ADC 0x06 before programming its stream
 	 * tag and format; without it the ADC remains in D3 and DMA never advances. */
 	.stream_pm = snd_hda_gen_stream_pm,
-//#ifdef UNDEF_CONFIG_PM
-//      .suspend = cs_4208_suspend,
-//      .resume = cs_4208_resume,
-//#endif
+	.resume = cs_4208_resume,
 };
