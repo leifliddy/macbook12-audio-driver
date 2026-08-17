@@ -380,11 +380,10 @@ static int cs_4208_init_explicit(struct hda_codec *codec)
 	int retval;
 	codec_dbg(codec, "cs_4208_init_explicit start");
 
-	// Without calling the generic init, the codec's input path (ADC mux
-	// selection, mic pin enables, capture amp defaults) never gets set up,
-	// so even with capture controls present recording stays silent.
-	// snd_hda_gen_init configures all input/output paths from the auto-config.
-	retval = snd_hda_gen_init(codec);
+	/* Keep the standard Cirrus initialization in the custom path.  Besides
+	 * configuring the generic input/output routes, cs_init() restores the
+	 * CS4208 vendor coefficients and GPIO state expected after boot/resume. */
+	retval = cs_init(codec);
 	if (retval < 0)
 		return retval;
 
@@ -409,6 +408,10 @@ static const struct hda_codec_ops cs_4208_patch_ops_explicit = {
 	.init = cs_4208_init_explicit,
 	.free = cs_4208_free_explicit,
 	.unsol_event = snd_hda_jack_unsol_event,
+	/* cs_alloc_spec() enables per-widget power saving.  Preserve the generic
+	 * stream callback so capture wakes ADC 0x06 before programming its stream
+	 * tag and format; without it the ADC remains in D3 and DMA never advances. */
+	.stream_pm = snd_hda_gen_stream_pm,
 //#ifdef UNDEF_CONFIG_PM
 //      .suspend = cs_4208_suspend,
 //      .resume = cs_4208_resume,
