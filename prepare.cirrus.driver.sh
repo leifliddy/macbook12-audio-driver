@@ -122,6 +122,7 @@ if (( major_version > 6 || (major_version == 6 && minor_version >= 17) )); then
     "$patch_dir/patch_cirrus_a1534_pcm.h" \
     "$hda_dir/codecs/cirrus"
   cp "$patch_dir/$makefile_name" "$hda_dir/codecs/cirrus/Makefile"
+  sed -i 's/#define AUTO_CFG_MAX_INS\t[0-9]\{1,2\}/#define AUTO_CFG_MAX_INS\t22/' "$hda_dir/common/hda_auto_parser.h"
 else
   makefile_name="Makefile_cirrus"
   tar --strip-components=3 -xf "$archive" --directory="$build_dir" \
@@ -133,6 +134,7 @@ else
     "$patch_dir/patch_cirrus_a1534_pcm.h" \
     "$hda_dir"
   cp "$patch_dir/$makefile_name" "$hda_dir/Makefile"
+  sed -i 's/#define AUTO_CFG_MAX_INS\t[0-9]\{1,2\}/#define AUTO_CFG_MAX_INS\t22/' "$hda_dir/hda_auto_parser.h"
 fi
 
 if (( major_version > 6 || (major_version == 6 && minor_version >= 17) )); then
