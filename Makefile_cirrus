@@ -1,10 +1,15 @@
 KERNELRELEASE ?= $(shell uname -r)
-KERNELDIR := /lib/modules/$(KERNELRELEASE)
+KERNELDIR ?= /lib/modules/$(KERNELRELEASE)
 
 KERNELBUILD := $(KERNELDIR)/build
 
+# Debian kernels build module BTF when pahole is available.  Fall back to a
+# no-op when pahole (the "dwarves" package) is missing: the module still
+# builds and loads, just without BTF debug data.
+PAHOLE := $(shell command -v pahole >/dev/null 2>&1 && echo pahole || echo true)
+
 all:
-	$(MAKE) -C $(KERNELBUILD) M=$(shell pwd)/build/hda modules
+	$(MAKE) -C $(KERNELBUILD) M=$(shell pwd)/build/hda modules PAHOLE=$(PAHOLE)
 
 clean:
 	$(MAKE) -C $(KERNELBUILD) M=$(shell pwd)/build/hda clean

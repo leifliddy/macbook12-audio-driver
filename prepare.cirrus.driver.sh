@@ -6,6 +6,15 @@ kernel_release="${1:-$(uname -r)}"
 kernel_version="${kernel_release%%-*}"
 kernel_version="${kernel_version%%_*}"
 
+# Debian kernels carry an ABI suffix such as "+deb13" (6.12.115+deb13-amd64).
+# Keep the full distro version around for the source-package lookup below,
+# but normalize to the plain upstream version for the checks that follow.
+deb_full_version=""
+if [[ $kernel_version == *+* ]]; then
+  deb_full_version="$kernel_version"
+  kernel_version="${kernel_version%%+*}"
+fi
+
 if [[ ! $kernel_version =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?([.-]rc[0-9]+)?$ ]]; then
   echo "Unsupported kernel release: $kernel_release" >&2
   exit 2
@@ -85,22 +94,50 @@ if [ $is_debian_like -ge 1 ]; then
   # modified with extensive backports from later kernel versions
   # (and in any case there is no linux-source-... package for hwe kernels)
 
-  if [ -e /usr/src/linux-source-$kernel_version.tar.bz2 ]; then
-    comp_type='bz2' # Ubuntu packages provide bz2 compression
-  elif [ -e /usr/src/linux-source-$kernel_version.tar.xz ]; then
-    comp_type='xz'  # Debian packages provde xz compression
-  else
-    echo "Linux kernel source not found in /usr/src: /usr/src/linux-source-$kernel_version.tar.bz2"
-    echo "assuming the linux kernel source package is not installed"
-    echo "please install the linux kernel source package:"
-    echo "sudo apt install linux-source-$kernel_version"
-    echo "if the above doesn't work because some distros don't use LTS Kernel, download the linux-source-$kernel_version .deb file"
-    echo "using Archive Manager, Open data.tar.zst, extract /usr/src/linux-source-$kernel_version.tar.bz2"
-    echo "NOTE - This does not work for HWE kernels"
+  # Ubuntu names its source package after the full upstream version
+  # (linux-source-6.8.0); Debian names it after the stable kernel ABI
+  # (linux-source-6.12) regardless of the point release.
+  source_candidates=(
+    "/usr/src/linux-source-${kernel_version}.tar.bz2"
+    "/usr/src/linux-source-${kernel_version}.tar.xz"
+  )
+  if [[ -n $deb_full_version && $deb_full_version != "$kernel_version" ]]; then
+    source_candidates+=(
+      "/usr/src/linux-source-${deb_full_version}.tar.bz2"
+      "/usr/src/linux-source-${deb_full_version}.tar.xz"
+    )
+  fi
+  if [[ $kernel_short_version != "$kernel_version" ]]; then
+    source_candidates+=(
+      "/usr/src/linux-source-${kernel_short_version}.tar.bz2"
+      "/usr/src/linux-source-${kernel_short_version}.tar.xz"
+    )
+  fi
+
+  archive=""
+  for candidate in "${source_candidates[@]}"; do
+    if [[ -f $candidate ]]; then
+      archive="$candidate"
+      # Derive the archive top-level directory from its file name
+      # (linux-source-6.12.tar.xz -> source-6.12, linux-6.8.0.tar.bz2 -> 6.8.0)
+      kernel_version="$(basename "$candidate" | sed -E 's/^linux-(.*)\.tar\.[^.]+$/\1/')"
+      break
+    fi
+  done
+
+  if [[ -z $archive ]]; then
+    echo "Linux kernel source not found in /usr/src:" >&2
+    for candidate in "${source_candidates[@]}"; do
+      echo "  $candidate" >&2
+    done
+    echo "assuming the linux kernel source package is not installed" >&2
+    echo "please install the linux kernel source package:" >&2
+    echo "sudo apt install linux-source-$kernel_short_version" >&2
+    echo "if the above doesn't work because some distros don't use LTS kernels, download the linux-source .deb file" >&2
+    echo "using Archive Manager, open data.tar.zst, extract /usr/src/linux-source-*.tar.bz2" >&2
+    echo "NOTE - This does not work for HWE kernels" >&2
     exit 1
   fi
-  archive="/usr/src/linux-source-${kernel_version}.tar.${comp_type}"
-  kernel_version="source-$kernel_version"
 else
   checksums="$cache_dir/sha256sums-v${major_version}.asc"
   [[ -f $checksums ]] || refresh_checksums
