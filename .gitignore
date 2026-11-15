@@ -1,2 +1,5 @@
 /build
 /Makefile
+/.kernel-cache/
+__pycache__/
+*.pyc

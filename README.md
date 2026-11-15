@@ -34,8 +34,27 @@ Based on davidjo's [snd_hda_macbookpro](https://github.com/davidjo/snd_hda_macbo
 
 **Ubuntu / elementary / Debian**
 ```bash
-sudo apt install curl dkms gcc make git linux-headers-$(uname -r) linux-source-$(uname -r)
+sudo apt install curl dkms gcc make git linux-headers-$(uname -r)
 ```
+For ordinary Debian/Ubuntu kernels, also install the matching `linux-source`
+package as required by the preparation script.
+
+**Ubuntu HWE / Linux Mint with an Ubuntu HWE kernel**
+```bash
+sudo apt install python3 patch
+```
+HWE kernels do not need a `linux-source-$(uname -r)` binary package. The script
+identifies the exact Ubuntu source package/version from the **target kernel's
+installed headers**, downloads its source archive and distribution diff over
+HTTPS, verifies both against the SHA-256 checksums in the source `.dsc`, and
+applies the HDA subtree patches before compiling. Uncached builds need network
+access to `archive.ubuntu.com` and cache the source files for later rebuilds.
+This currently supports Ubuntu's format-1.0 source packages (`orig.tar.*` plus
+`diff.gz`); unsupported packaging or failed patches stop the build rather than
+falling back to potentially ABI-incompatible kernel.org headers. See
+[HWE source selection and test results](docs/ubuntu-hwe.md) for the root cause,
+verification scope and offline test command.
+
 **Fedora**
 ```bash
 sudo dnf install curl dkms gcc make git kernel-devel

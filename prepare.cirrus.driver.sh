@@ -78,12 +78,28 @@ elif [ $(grep '^ID=' /etc/os-release | grep -c "ubuntu") -eq 1 ]; then
   is_debian_like=1
 fi
 
-if [ $is_debian_like -ge 1 ]; then
+hwe_prepared=0
+# Inspect the target headers, not uname -r: DKMS may build another kernel.
+hwe_source=""
+if command -v dpkg-query >/dev/null; then
+  hwe_source="$(dpkg-query -W -f='${source:Package}' \
+    "linux-headers-$kernel_release" 2>/dev/null || true)"
+fi
+if [[ $hwe_source == linux-hwe-* ]]; then
+  for dependency in python3 curl patch; do
+    if ! command -v "$dependency" >/dev/null; then
+      echo "Ubuntu HWE source preparation requires $dependency." >&2
+      exit 1
+    fi
+  done
+  python3 "$script_dir/prepare.ubuntu-hwe.py" \
+    "$kernel_release" "$build_dir" "$cache_dir"
+  hwe_prepared=1
+elif [ $is_debian_like -ge 1 ]; then
   # NOTE for Ubuntu we need to use the distribution kernel sources as they seem
   # to be significantly modified from the mainline kernel sources generally with backports from later kernels
-  # NOTE this will likely NOT work for Ubuntu hwe kernels which are even more highly
-  # modified with extensive backports from later kernel versions
-  # (and in any case there is no linux-source-... package for hwe kernels)
+  # HWE source packages are handled above; retain the existing linux-source
+  # package path for ordinary Debian/Ubuntu kernels.
 
   if [ -e /usr/src/linux-source-$kernel_version.tar.bz2 ]; then
     comp_type='bz2' # Ubuntu packages provide bz2 compression
@@ -153,8 +169,10 @@ fi
 
 if (( major_version > 6 || (major_version == 6 && minor_version >= 17) )); then
   makefile_name="Makefile_cs420x"
-  tar --strip-components=2 -xf "$archive" --directory="$build_dir" \
-    "linux-${kernel_version}/sound/hda"
+  if (( ! hwe_prepared )); then
+    tar --strip-components=2 -xf "$archive" --directory="$build_dir" \
+      "linux-${kernel_version}/sound/hda"
+  fi
   mv "$hda_dir/codecs/cirrus/Makefile" "$hda_dir/codecs/cirrus/Makefile.orig"
   mv "$hda_dir/codecs/cirrus/cs420x.c" "$hda_dir/codecs/cirrus/cs420x.c.orig"
   cp "$patch_dir/cs420x.c" \
@@ -164,8 +182,10 @@ if (( major_version > 6 || (major_version == 6 && minor_version >= 17) )); then
   cp "$patch_dir/$makefile_name" "$hda_dir/codecs/cirrus/Makefile"
 else
   makefile_name="Makefile_cirrus"
-  tar --strip-components=3 -xf "$archive" --directory="$build_dir" \
-    "linux-${kernel_version}/sound/pci/hda"
+  if (( ! hwe_prepared )); then
+    tar --strip-components=3 -xf "$archive" --directory="$build_dir" \
+      "linux-${kernel_version}/sound/pci/hda"
+  fi
   mv "$hda_dir/Makefile" "$hda_dir/Makefile.orig"
   mv "$hda_dir/patch_cirrus.c" "$hda_dir/patch_cirrus.c.orig"
   cp "$patch_dir/patch_cirrus.c" \
