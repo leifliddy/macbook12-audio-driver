@@ -31,6 +31,7 @@ install_driver() {
     "$script_dir/dkms.conf" \
     "$script_dir/Makefile_cirrus" \
     "$script_dir/Makefile_cs420x" \
+    "$script_dir/prepare.ubuntu-hwe.py" \
     "$source_dir"
   install -m 0755 "$script_dir/prepare.cirrus.driver.sh" "$source_dir"
   cp -a "$script_dir/patch_cirrus" "$source_dir"
